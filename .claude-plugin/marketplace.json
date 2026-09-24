@@ -4,12 +4,8 @@
   "plugins": [
     {
       "name": "bastis-service-toolkit",
+      "source": "./bastis-service-toolkit",
       "description": "monday.com delivery toolkit — discovery, scoping, solution architecture, UAT, AI config, Vibe board builder, and full client lifecycle.",
-      "source": {
-        "type": "url",
-        "url": "https://github.com/sebseegy/plugin.git",
-        "sha": "afef5d26187c1dbca1d6055b87e1632202e4de77"
-      },
       "homepage": "https://github.com/sebseegy/plugin"
     }
   ]

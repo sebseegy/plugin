@@ -1,0 +1,16 @@
+{
+  "name": "sebastianseegy",
+  "owner": { "name": "Sebastian Seegy" },
+  "plugins": [
+    {
+      "name": "bastis-service-toolkit",
+      "description": "monday.com delivery toolkit — discovery, scoping, solution architecture, UAT, AI config, Vibe board builder, and full client lifecycle.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/sebastianseegy/Plugins.git",
+        "sha": "REPLACE_WITH_COMMIT_SHA"
+      },
+      "homepage": "https://github.com/sebastianseegy/Plugins"
+    }
+  ]
+}

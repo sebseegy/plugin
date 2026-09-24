@@ -38,7 +38,8 @@ Before the first prompt of a session, establish (ask only for what's missing):
   Options Picker). Every prompt names its target app; Vibe has answered "there is no Setup
   Wizard in this codebase" when a prompt meant for one app went to the other.
 - **Connected boards** — board IDs and the column IDs the change touches.
-- **State** — published? auto-promote on or off (changes may sit in draft)? Discuss mode on?
+- **State** — published? Auto Update on or off (changes may sit in draft)? Plan or Discuss mode
+  on? Vibe DB in use (no draft/live split — draft tests write real data)?
 - **Source** — latest code export path, and which prompt it predates ("src 5 = before the last prompt").
 - **App Memory** — what Vibe has "Saved to memory". Stale memory re-imposes old rules.
 - **Who uses it** — roles, license types (Viewers can't open Vibe apps), internal vs public.
@@ -53,6 +54,7 @@ If a project folder exists, keep the card and the prompt log in
 | App UI, app logic, server functions, in-app diagnostics | **Vibe** | Only Vibe edits the app |
 | Read/audit/fix board data or schema in an account you can't reach via MCP | **Sidekick** (read-only first, then gated writes) | Sidekick sees the account; Vibe only sees connected boards |
 | "When X happens on a board, create/link items" (provisioning, cross-board create) | **monday workflow/automation** | Native, event-driven; Vibe has no background jobs |
+| Call an external service (REST API) | **Vibe**, via the API Requests integration | API-token auth only (no OAuth), GET/POST/PUT, 1 credit per call and per page. Basti adds the token in the integration; the prompt never contains the key and the code must never hardcode it |
 | Trigger on a mirror column | **Legacy recipe built by hand in the UI** | `create_automation` (workflow engine) rejects mirror triggers; the legacy recipe with `mirrorColumnConfig` works but isn't in the public API |
 | New board columns | **Sidekick / MCP / by hand first**, then a Vibe prompt that resolves them by ID and halts if missing | Keeps schema changes verifiable and out of app code (Wren pattern); Vibe's board-editing subagent exists but wasn't relied on |
 | Duplicating managed templates / creating boards | Workflow or manual | Not what the app layer is for; keep it native and reversible |
@@ -108,8 +110,11 @@ Rules for every prompt:
 - **Demand a Report** that proves mechanism: files changed, guard names, before/after timings.
 - **Plain words, exact labels.** Quote status/dropdown labels verbatim (including client typos
   like "Call Off Recieved").
-- **Credits are real.** Observed 35–454 credits per prompt; large multi-part prompts cost most
-  and failed prompts still charge. Don't spend a prompt on cosmetics while correctness is open.
+- **Credits are real.** Cost depends on complexity and the AI model chosen in Vibe; observed
+  35–454 credits per prompt. Large multi-part prompts cost most and failed prompts still charge.
+  Don't spend a prompt on cosmetics while correctness is open.
+- **Point, don't describe, for UI changes.** Tell Basti to click the element with the element
+  selection tool and keep the prompt to what should change.
 
 Apply the production lessons in [field-lessons.md](field-lessons.md) — they're the
 rules Vibe-generated code has repeatedly broken (title-based column lookup, `contains` joins,
@@ -119,8 +124,10 @@ blank-as-default, inferred-state writes, UI-only permissions, query-param deep l
 
 Tell Basti in one short block:
 
-- **Target app** and **mode**: "Paste into the Call-Off App, Discuss off, then Build." Use a
-  Discuss-mode prompt only when you want a plan or answer without code.
+- **Target app** and **mode**: "Paste into the Call-Off App, Plan and Discuss off, then Build."
+  Use **Plan mode** when you want Vibe to propose an approach before building. Discuss mode is
+  limited/unreliable as of 2026-09 — for answers without code, send a "Read-only. Change
+  nothing. Report…" Build prompt instead.
 - **Order and holds**: "Send 1 now. Hold 2 until 1 reports ready — both edit
   `SitePoolsPanel.jsx`." Only queue prompts that touch disjoint files; queued prompts that
   overlap produced half-applied, uncertain states on Wren.
@@ -132,7 +139,7 @@ Run this checklist on every pasted Vibe reply before writing anything new:
 
 | Check | Look for |
 |---|---|
-| **Did it finish?** | "App ready" vs **"Oops, something went wrong"** mid-run → assume half-applied. Next prompt is read-only: "report what actually landed, does it build". |
+| **Did it finish?** | "App ready" vs **"Oops, something went wrong"** mid-run → assume half-applied. Next prompt is read-only: "report what actually landed, does it build". If it landed but is simply wrong, "undo this" reverts the last edit — cheaper than a corrective prompt. |
 | **Scope** | Files changed vs files expected. Any new route, nav item, screen, board read, or narrowed permission you didn't ask for? |
 | **Deviations** | Vibe often says "that's my deviation, on purpose". Evaluate each one explicitly — accept with reason or reject with a corrective prompt. Many were right (e.g. refusing to treat an empty column as stale). |
 | **Claims vs evidence** | "Verified" in chat is a code trace, not a runtime test. The fixed footer ("turn off Discuss mode…") means nothing. |

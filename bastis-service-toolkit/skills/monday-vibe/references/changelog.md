@@ -6,6 +6,29 @@ covers what weekly-pulse has caught so far, so still confirm anything
 stakes-sensitive against support.monday.com and Slack per the main skill
 instructions.
 
+## Catch-up, added manually 2026-09-24
+
+Releases weekly-pulse hadn't logged, confirmed via Company Brain and the support
+best-practices article on 2026-09-24.
+
+- **Vibe DB** (Full release, all Vibe tiers per the Aug 2026 Product Updates deck) —
+  per-app database, ~10 GB / ~1M items, 256 KB per record, no images, no
+  automations/dashboards on the data, no draft/live split. Left-pane apps created
+  from ~26 Aug 2026 only. Enable via `+` → Integrations → Advanced → "Create fast
+  database", or ask "use Vibe DB to store the data".
+  Source: Company Brain (Aug 2026 Product Updates deck, #ask-vibe-ai)
+- **Up to 20 connected boards** — the support article now states "You can connect
+  up to twenty boards at a time". Internal packaging still lists 5 by default and 20
+  on Vibe Growth or Custom/Enterprise; confirm per account.
+  Source: Docs (https://support.monday.com/hc/en-us/articles/34101891654034, modified 2026-09-22); Company Brain (packaging SOT monday.monday.com/docs/18411930424)
+- **Unique page URLs** (since June 2026) — every page can have its own URL with
+  working back/forward. Extra query parameters are not reliably forwarded into the
+  app on private apps; put record keys in the route path or use item views.
+  Source: Company Brain (#ask-vibe-ai, June 2026); confirmed in production on WHSmith, 2026-09-23
+- **Board editing from the chat, element selection tool, image generation,
+  chat images as app assets** — all listed in the current best-practices article.
+  Source: Docs (https://support.monday.com/hc/en-us/articles/34101891654034)
+
 ## 2026-08-24 to 2026-08-31
 
 - **Vibe apps can connect to any external API** (Released, all tiers) — API

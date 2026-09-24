@@ -17,20 +17,27 @@ Facts in this skill were last verified against monday.com's internal mondayall k
 Full detail, dates and sources: [references/platform-facts.md](references/platform-facts.md). Read the
 relevant section there before asserting a capability to a client.
 
-- **Board ceiling** — plan for **5** connected boards as the safe default. The newer support
-  best-practices article says up to 20, the get-started article still says 5, and 20 has been
-  seen gated behind Vibe Growth (possibly plus an add-on). Verify per account before relying on more than 5.
+- **Board ceiling** — plan for **5** connected boards as the safe default. The support
+  best-practices article (modified 2026-09-22) says "up to twenty boards at a time"; internal
+  packaging lists 5 by default and 20 on Vibe Growth or Custom/Enterprise. Verify per account
+  before relying on more than 5.
 - **Vibe DB** — private per-app document store; doesn't count against the board ceiling; no
   automation/dashboard surface. Decision order: platform-facts → "Vibe DB vs. monday Boards".
 - **Query cap** — board reads return ~500 (sometimes 200) items per query; paginate, filter
   server-side where possible, or use Vibe DB.
-- **No background jobs, no external APIs** (Gmail/Outlook integration is the exception).
-  Nothing on a board can call into the app — see "Board → app signalling" in platform-facts.
+- **External APIs** — supported via the API Requests integration (API-token auth only, no
+  OAuth, GET/POST/PUT, 1 credit per call and per page). Email via Gmail/Outlook.
+- **No background jobs** — apps run only while open. Nothing on a board can call into the app —
+  see "Board → app signalling" in platform-facts.
 - **Access** — board permissions are the floor and the app cannot elevate them. Viewer seats
   can't open Vibe apps. Public apps have no per-user layer. Private-app access and deep links:
   platform-facts → "Private app access and entry points".
 - **Memory** — Vibe saves App Memory on its own during builds; audit it after rule changes.
-- **Credits** — build/edit prompts charge (observed 35–454 per prompt), failed ones too.
+  Memory holds instructions, never data.
+- **Credits** — build/edit prompts charge by complexity and chosen model (observed 35–454 per
+  prompt), failed ones too; in-app AI actions ~8 credits per run.
+- **Plan mode** — the "Plan" toggle proposes features, design and a flowchart before building;
+  Discuss mode is now described internally as limited/unreliable.
 - **No version control / staging** — duplicate the app before risky changes.
 
 ## 7-Step Workflow
@@ -338,7 +345,11 @@ Vibe's own chat replies are not reliable self-reports. Observed failure modes in
   string) — when it's on, `vibe_ask`/`vibe_update` calls will only produce conversational/planning
   output and never write code, even when the instruction explicitly says "build this now." If
   repeated build-intent prompts produce no code changes, check whether the app is stuck in Discuss
-  mode before assuming the prompt wording is the problem.
+  mode before assuming the prompt wording is the problem. As of 2026-09 Discuss mode is described
+  internally as limited/unreliable; for "plan before building" use **Plan mode** instead, and for
+  code questions send a Build prompt that says "Read-only. Change nothing. Report…".
+- **"undo this"** in the chat reverts the last edit — try it before writing a corrective prompt
+  when a change simply went wrong.
 - Before re-asking Vibe to build something, check whether it was already built earlier in the
   same conversation — Vibe itself has been observed re-verifying its own prior work on disk rather
   than assuming, and finding the work already done. Don't skip that same check yourself.

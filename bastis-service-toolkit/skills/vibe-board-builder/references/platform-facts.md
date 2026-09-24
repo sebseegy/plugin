@@ -18,8 +18,10 @@ Vibe is monday.com's AI-powered app builder. It reads structured data from board
   accounts. *(Corroborated live 2026-08-18: an account needing a 20-board Vibe app hit an actual
   5-board ceiling in practice and required manual escalation to raise it.)* *(Docs disagree too,
   noted 2026-09: the newer support article "monday vibe best practices, features and
-  capabilities" says up to 20 connected boards, while "Get started with monday vibe" still says
-  5.)* **Net: plan for 5 as
+  capabilities" (modified 2026-09-22) says "You can connect up to twenty boards at a time",
+  while "Get started with monday vibe" still says 5. The internal packaging source of truth,
+  via Company Brain 2026-09-24, lists 5 by default and 20 on Vibe Growth or Custom/Enterprise,
+  tied to the Vibe package rather than the core monday plan.)* **Net: plan for 5 as
   the safe default ceiling for full custom apps; 20 is realistically reachable on Growth (possibly
   behind a further add-on) but verify per-account before committing an architecture to it.** Note:
   Vibe DB (below) doesn't count against this limit at all and is often the better home for
@@ -39,11 +41,15 @@ Vibe is monday.com's AI-powered app builder. It reads structured data from board
   unsupported (live thread + internal mondayAll check, 2026-08-14/16). If a client's data lives on
   a Portfolio-managed board, plan to mirror the relevant fields onto a plain board Vibe can read,
   or scope the app around a different data source entirely.
-- **No external APIs** — confirmed still unshipped as of Aug 2026 ("planned future feature," and
-  still being actively asked about as recently as 2026-08-18 with no shipped answer). The one
-  sanctioned exception: a native **Gmail/Outlook email integration** (see below) — Vibe can
-  trigger, receive, and organize email through a connected Gmail/Outlook account without that
-  counting as a general external API. Separately, an unresolved internal security question
+- **External APIs — supported since late Aug 2026** via the built-in **API Requests
+  integration** (`+` → Integrations → API Requests), per Company Brain (#ask-vibe-ai and the
+  "monday vibe: Permissions and Pricing" article, checked 2026-09-24). API-token auth only — you
+  paste a token and label, it's stored securely and never exposed in app code; **no OAuth** yet
+  (OAuth2-only services are blocked); GET/POST/PUT; **1 credit per call, and each page of a
+  paginated call is a separate call**. Also enables bring-your-own-model for the app's AI logic.
+  Never ask Vibe to hardcode a key or secret in app code or a prompt. Separately, the native
+  **Gmail/Outlook email integration** (see below) handles sending and organizing email.
+  Separately, an unresolved internal security question
   (2026-08-16) asks whether Vibe-generated apps pull external open-source libraries (fonts, JS
   charting libs) from npm/GitHub at build time in a way that's sandboxed from the app's own board
   data — no confirmed answer was visible in the channel. **Treat this as an open risk to name, not
@@ -104,14 +110,22 @@ contradictory, just two lenses on the same ceiling), and Vibe DB is pitched as *
 monday board** for app-internal reads/writes, directly solving the old 500-item board query cap.
 Enable it either via the prompt box's "+" → Integrations → Advanced → "Create fast database", or
 simply by prompting Vibe: *"use Vibe DB to store the data."* It can be retrofitted onto an
-existing app, but **only apps created from a specific infra cutoff date support it** (the
-announcement cites "Aug 26" as the cutoff without confirming the year — verify live before
-assuming an older app qualifies), and only on full left-pane apps, not board-view apps. There's
+existing app, but **only apps created from ~26 Aug 2026 support it** (older apps may need
+recreating), and only on full left-pane apps, not board-view apps. There's
 also a sanctioned **one-time migration** path, distinct from the "never mirror" hard rule below:
 you can ask Vibe to *"add a sync option to migrate your data from a board to Vibe DB"* for a
-clean one-off cutover. That's different from ongoing mirroring, which remains prohibited. As of
-2026-08-19 this was rolling out gradually to monday.monday first — treat availability as
-not-yet-universal until confirmed live on the target account.
+clean one-off cutover. That's different from ongoing mirroring, which remains prohibited. It
+rolled out to monday.monday first (2026-08-19) and is now listed as **Full release, open to all
+Vibe tiers** (Aug 2026 Product Updates deck, via Company Brain 2026-09-24).
+
+**Additional constraints confirmed 2026-09-24 (Company Brain):**
+- **No draft vs. live separation** — testing a draft build reads and writes the same Vibe DB
+  data the published app uses. Use test records or a duplicated app for risky changes.
+- **No images or blobs** — JSON documents only (256 KB per record); keep files on a board's
+  Files column.
+- **Built for reads and dozens of concurrent users**, not heavy parallel writes; no formal rate
+  limits published.
+- **No external API** to Vibe DB yet — only the app's server code and the builder's Data tab.
 
 **Decision order — walk through in sequence, first "yes" wins (matches the internal builder
 guide's own framing verbatim):**
@@ -223,7 +237,8 @@ system before padding a fresh prompt with brand details it may already know.
 and the saved rules persist (observed on WHSmith Portfolio Command, 2026-09: memory held brand,
 board IDs, join rules, pot model and submit pipeline). The risk is stale memory: weeks later it
 still held retired business rules (hard-block overspend, Capex/Opex/SAAS, blank pot = External)
-that fought newer prompts. Audit App Memory after every business-rule change.
+that fought newer prompts. Audit App Memory after every business-rule change. Memory is for
+instructions and small settings, never a data store — records belong on boards or in Vibe DB.
 
 ---
 
@@ -456,6 +471,10 @@ pricing pages before quoting a client:**
 - **Credits are consumed even on failed builds/deployments**, including retries where Vibe's own
   error message is unhelpfully generic (see Verification discipline in SKILL.md) — a failed prompt is
   not a free retry.
+- **Official framing (support "AI Models and Credits" article, via Company Brain 2026-09-24):**
+  each prompt's cost depends on task complexity and the **AI model chosen in Vibe**; published
+  apps that use AI also charge at runtime (in-app AI actions ~8 credits per run, integration
+  triggers and external API calls 1 credit each). There is no official per-prompt price table.
 - **Observed per-prompt cost (Wren and WHSmith, 2026-09):** 35 credits for a small targeted
   fix, 141–221 for a scoped change, 417–454 for large multi-part prompts. Keep prompts to one job.
 - Whether calling `vibe_create`/`vibe_update` via the MCP gateway with a signed JWT on a

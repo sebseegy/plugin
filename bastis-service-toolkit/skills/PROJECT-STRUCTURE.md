@@ -65,10 +65,21 @@ Plus a "Not captured this run" range with reasons.
   "account_domain": null,
   "aliases": [],
   "skus": [],
+  "email_domains": [],
   "last_context_sync": null,
-  "call_sources": { "notetaker_meeting_ids": [], "gong_call_ids": [] }
+  "call_sources": { "notetaker_meeting_ids": [], "gong_call_ids": [] },
+  "monday_environments": {
+    "client_account": { "name": null, "slug": null, "mcp_access": false },
+    "build_accounts": [
+      { "label": "Spaces / demo", "slug": null, "purpose": "demo + pre-transfer build", "mcp_access": true }
+    ]
+  }
 }
 ```
+`email_domains` (e.g. `["whsmith.co.uk"]`) is how Notetaker finds every client
+call, including ones titled "Emily Hall and Sebastian Seegy". `monday_environments`
+records which monday accounts exist for this client and whether Claude can see
+them — see "monday environments" below.
 
 **SKU/Contract** `SKU level/<SKU>/meta.json`:
 ```json
@@ -90,16 +101,28 @@ services has no launch/closure arc; professional services does.
   "level": "project",
   "client_name": "Acme Corp",
   "sku_name": "Q3 Professional Services",
-  "project_name": "CRM rollout"
+  "project_name": "CRM rollout",
+  "build": {
+    "stage": "demo_build",
+    "build_account": "Spaces / demo",
+    "build_workspace_ids": [],
+    "client_workspace": null,
+    "transferred_at": null,
+    "source_of_truth": "build_account"
+  }
 }
 ```
+`build.stage` is one of `not_started` · `demo_build` (building in Spaces/demo) ·
+`transferred` (moved to the client's account) · `client_build` (built directly in
+the client account) · `live`. `source_of_truth` is `build_account` until transfer,
+then `client_account`.
 
 ## Source / deliverable file headers
 
 Call files (in `All Calls/`):
 ```markdown
 ---
-source: gong            # gong | notetaker
+source: notetaker       # notetaker (primary) | gong (fallback)
 id: 12345
 date: 2026-05-20
 title: Discovery call
@@ -163,10 +186,74 @@ If no project context exists at all (the client folder is empty/new), that's whe
 
 Kremer: sessions serialize and can cache (omit sessionId for fresh/parallel);
 summary batches ≤5 calls; force raw CONVERSATION_IDs; verify transcript completeness
-(don't trust "complete" claims). Notetaker: `include_action_items: true` crashes on
-due_date (use false; fetch separately); transcripts large/mixed-language (don't
-inline, normalize to English). Drive: shell mount unreliable mid-session — read
+(don't trust "complete" claims). Notetaker: set include_* flags explicitly — with
+all flags false `get_meetings_content` returns metadata only, which earlier runs
+mistook for "the API has no content"; `include_action_items: true` works again
+(re-tested 2026-09-25); transcripts are large/mixed-language (don't inline,
+normalize to English). Drive: shell mount unreliable mid-session — read
 binaries via the connector, write via file tools; filesystem case-insensitive.
+
+## Call sources — Notetaker first (applies to every skill that recalls calls)
+
+Basti records every client call with the **monday AI Notetaker** in the
+**monday.monday** account. That is the system of record for calls. Gong only covers
+calls an AE recorded (mostly pre-sales), and Zoom is never a call source.
+
+**Order — stop at the first source that answers the question:**
+1. **Notetaker** (monday MCP connector on the monday.monday account — confirm with
+   `get_user_context` if several monday connectors are loaded; it's the Enterprise
+   account with ~3k members, not the Spaces/demo or client account).
+2. **Gong via Kremer** — only for gaps: calls before Basti joined (sales handover),
+   or a date where Notetaker has no recording. Before pulling a Gong call, drop it
+   if a Notetaker meeting exists within ±30 min with overlapping participants.
+3. **Never** Zoom MCP / Zoom plugin, Gmail Gong digests, or calendar for call
+   *content*. Calendar is fine for attendee lists (meeting-followup).
+
+**Cheapest correct Notetaker calls (measured 2026-09-25):**
+
+| Need | Call | Cost (approx.) |
+|---|---|---|
+| List/ID-check every client call | `get_meetings_content(search: "<client email domain>", access: ALL, include_summary: false)` | ~100 tokens/meeting — metadata only (id, title, time, participants) |
+| Find calls by topic/person | `explore_meetings(query: "<1–4 words>", access: ALL, start_time_from, limit ≤10)` | ~130 tokens/meeting (id + one-paragraph gist) |
+| Find where something was said/decided | `search_meetings_content(query, search_in: [SUMMARY, ACTION_ITEM, TOPIC], access: ALL, limit ≤5)` | passages only, ~1–2k total |
+| Capture a call | `get_meetings_content(ids: [≤5], include_summary: true, include_action_items: true)` | ~1.5–2k tokens per 30–60 min call |
+| Deeper context | add `include_topics: true` | roughly doubles it (~4k for a 1 h call) |
+| Verbatim | `include_transcript: true` for ONE call, on demand only | very large — never in bulk |
+
+Rules that make this work:
+- Always pass `access: ALL` (default `OWN` misses calls shared by colleagues).
+- The domain search catches calls whose titles don't name the client. Search every
+  domain in `email_domains`; add `explore_meetings` with the client name/aliases to
+  catch internal prep calls without client attendees.
+- A Notetaker meeting URL
+  (`…/notetaker/meetings-page-product-view/summaries/<uuid>`) → the uuid is the id;
+  pass it straight to `get_meetings_content(ids: [uuid], include_summary: true, …)`.
+- Why this beats Gong on tokens: Gong pulls go through the async Kremer agent
+  (submit → poll → SQL narrative, ≤5 calls per batch), so every batch costs several
+  round trips before any content arrives; Notetaker returns structured summaries and
+  action items synchronously in one call.
+
+## monday environments — which account is the truth (applies to every skill that reads boards)
+
+Typical lifecycle: Basti builds a **demo in the monday Spaces / demo account** via
+MCP (Claude or Cursor), then **transfers it to the client's own account**. After the
+transfer the client account is the only truth — and Claude usually has **no MCP
+access** to it. The demo workspace becomes a stale snapshot.
+
+Rules:
+1. Before reading any board to judge progress, read `build.stage` in the project
+   `meta.json` and `monday_environments` in the client `meta.json`. If they're
+   missing, ask once: "Is this project still in the Spaces/demo account, or has it
+   moved to <client>'s account?" — and write the answer back.
+2. `stage = transferred | client_build | live` and `client_account.mcp_access =
+   false` → **do not report anything as "not done" or "missing" based on the
+   demo/Spaces account.** Judge progress from Notetaker calls, deliverables, and what
+   Basti tells you. Mark board-level facts "unverified — lives in <client> account
+   (no MCP access)" and ask Basti to confirm or paste a screenshot/export.
+3. `stage = demo_build` → the build account is the truth; read it normally.
+4. Before any monday MCP call, confirm which account the connector is on
+   (`get_user_context`) and name it in the output. Never write to monday.monday
+   (internal, Notetaker only) or to a client account without explicit approval.
 
 ## Useful warehouse tables (via Kremer)
 

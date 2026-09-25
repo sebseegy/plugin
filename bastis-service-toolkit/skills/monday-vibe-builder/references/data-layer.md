@@ -53,11 +53,14 @@ records in Vibe DB (time entries) linked by item ID.
 - Query: `== != < <= > >= in array-contains`, AND only (no OR/NOT), one orderBy,
   cursor pagination; `search()` = substring over JSON; aggregates count/sum/avg/
   min/max with one groupBy.
-- Gotchas: **Draft and Live are separate databases** (#1 "my data vanished" cause) —
-  seed live or build a migration; schema changes additive only; a typo in a
-  collection name silently creates a new collection; soft-delete retains 30 days;
-  point-in-time restore 30 days; duplicating an app can copy data; builder "Data"
-  tab to inspect/edit records.
+- Gotchas: **draft vs live data is disputed** — the Vibe PM (Amichay, #ask-vibe-ai
+  2026-08-27) and Company Brain say draft and live share ONE database (so testing in
+  the draft writes real data); the internal Vibe DB playbook says they're separate.
+  Test it on the account before relying on either; for real dev/prod separation,
+  duplicate the app or ask Vibe for separate dev/prod tables. Schema changes are
+  additive only; a typo in a collection name silently creates a new collection;
+  soft-delete retains 30 days; point-in-time restore 30 days; duplicating an app can
+  copy data; builder "Data" tab to inspect/edit records.
 - No file storage — use board file columns or external storage (e.g. Cloudinary)
   via API integration.
 - No board↔Vibe DB sync. Custom sync only runs while the app is open, is slow for

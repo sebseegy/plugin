@@ -19,23 +19,26 @@ Turns a monday.com AI notetaker meeting summary into a warm, professional follow
 
 **Primary source: monday.com notetaker**
 
-Call `monday.com:get_notetaker_meetings` with:
-```
-limit: 5
-include_summary: true
-include_action_items: true
-include_topics: true
-access: OWN
-```
+Use the monday connector on the **monday.monday** account (check `get_user_context`
+if several monday connectors are loaded).
 
-- If the user named a specific meeting, use `search` to find it
-- Otherwise, present the most recent 1–3 meetings and ask which one to use
-- Confirm before proceeding if it's ambiguous
-- Note the meeting **title** and **start_time** — you'll need these to find the calendar event in Step 2
+- **Specific meeting URL or id** → `get_meetings_content(ids: ["<uuid>"],
+  include_summary: true, include_action_items: true, include_topics: true)`. The uuid
+  is the last path segment of `…/meetings-page-product-view/summaries/<uuid>`.
+- **Client or person named** → `explore_meetings(query: "<client or person>",
+  access: ALL, limit: 5)`, or `get_meetings_content(search: "<client email domain>",
+  access: ALL, include_summary: false)` to list by attendee domain; then fetch the
+  chosen id as above.
+- **Nothing named** → `explore_meetings(access: OWN, limit: 3)` (most recent), show
+  them and ask which one.
+- Set the include_* flags explicitly — with all flags false the tool returns
+  metadata only, which is not "no notes".
+- Note the meeting **title** and **start_time** — you'll need these to find the
+  calendar event in Step 2.
 
 **Fallback: Gong email summary (if notetaker notes are absent)**
 
-If the matched meeting has no summary content (empty or missing `summary`, `action_items`, and `topics`), or if no notetaker meeting is found at all:
+If the matched meeting genuinely has no summary content after fetching with `include_summary: true` (empty or missing `summary`, `action_items`, and `topics`), or if no notetaker meeting is found at all:
 
 1. Cross-reference Google Calendar first (Step 2) to confirm a meeting took place
 2. If a calendar event is confirmed, search Gmail for a Gong summary email:

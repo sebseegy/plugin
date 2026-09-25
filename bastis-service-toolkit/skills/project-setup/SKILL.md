@@ -1,6 +1,6 @@
 ---
 name: project-setup
-description: "Create the shared-drive folder structure for an IC engagement — at whichever level is needed: a brand-new client (root + Client Context + All Calls + first SKU + first project), a new SKU/contract under an existing client, or a new project under an existing SKU. Builds the correct meta.json at each level. For a brand-new client it also runs setup-context to pull calls + account data. Use when the user says 'set up a project', 'new client', 'add a project', 'new SKU/contract', 'scaffold the folders', or points at an empty/new folder. Infers names from existing meta.json or the folder name rather than interrogating."
+description: "Create the shared-drive folder structure for an IC engagement — at whichever level is needed: a brand-new client (root + Client Context + All Calls + first SKU + first project), a new SKU/contract under an existing client, or a new project under an existing SKU. Builds the correct meta.json at each level and records which monday accounts the client has (client account vs Spaces/demo build account) so later skills never judge progress from the wrong one. For a brand-new client it also runs setup-context to pull calls + account data. Use when the user says 'set up a project', 'new client', 'add a project', 'new SKU/contract', 'scaffold the folders', or points at an empty/new folder. Infers names from existing meta.json or the folder name rather than interrogating."
 ---
 
 # Project Setup (scaffold the structure)
@@ -125,10 +125,39 @@ the local `call-inventory` and tag, don't re-fetch call content.
 The result: a project task can filter `call-inventory` by its project tag and
 immediately have the right calls, instead of scanning everything.
 
+## Step 1d — monday environments (ALWAYS ask for a new client or new project)
+
+Other skills keep reporting work as "not done" because they read the Spaces/demo
+account after the build was moved to the client's account, which Claude can't see.
+Capture the environment setup up front so that can't happen.
+
+1. Check which monday connectors are loaded: `get_user_context` on each. Name them
+   back (e.g. "monday.monday — internal/Notetaker", "Spaces demo — Pro trial",
+   "<client> account").
+2. Ask in **one** message (skip anything already in `meta.json`):
+   - "What is <client>'s own monday account (e.g. `whsmith.monday.com`)? Do I have
+     MCP access to it?"
+   - "Where is this project being built: in the Spaces/demo account first, or
+     directly in the client's account? Which workspace?"
+   - "Has anything already been transferred to the client's account? If so, when?"
+   - "What's the client's email domain?" (drives Notetaker call capture)
+3. Write the answers:
+   - client `meta.json` → `email_domains`, `monday_environments.client_account`
+     (`name`, `slug`, `mcp_access`) and `monday_environments.build_accounts`.
+   - project `meta.json` → `build` (`stage`, `build_account`,
+     `build_workspace_ids`, `client_workspace`, `transferred_at`,
+     `source_of_truth`). See PROJECT-STRUCTURE.md for the allowed values.
+4. If Basti skips the question, set `stage: "unknown"` — progress-reading skills
+   then ask before trusting any board.
+
+When the transfer happens later, any skill that hears it ("moved it over to the
+client", "it's in their account now") updates `build.stage = transferred`,
+`transferred_at`, and `source_of_truth = client_account`.
+
 ## Step 2A — new client
 
 At the client root create: client `meta.json` (`level: client`, name, empty `skus`,
-null sync/account fields, empty `call_sources`), `Client Context/`, and `All Calls/`.
+null sync/account fields, empty `call_sources`, `email_domains` and `monday_environments` from Step 1d), `Client Context/`, and `All Calls/`.
 
 ## Step 2B — new SKU / contract
 
@@ -147,7 +176,7 @@ the contract covers (from `product_name`/`product_group`) is fine.
 ## Step 2C — new project
 
 Under `SKU level/<SKU>/Projects/<Project name>/` create: project `meta.json`
-(`level: project`, `client_name`, `sku_name`, `project_name`) and the three working
+(`level: project`, `client_name`, `sku_name`, `project_name`, plus the `build` block from Step 1d) and the three working
 folders **`inputs/`, `deliverables/`, `docs/`**. Add the project name to the SKU
 `meta.json` `projects` list.
 

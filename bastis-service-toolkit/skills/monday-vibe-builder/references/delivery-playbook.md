@@ -31,7 +31,7 @@
 4. Go-live: swap to live boards (Boards header) or Duplicate → connect to new
    boards. Cross-account: public template link (no boards carried; Enterprise needs
    "Generate public Vibe templates").
-5. Vibe DB: remember draft vs live data are separate.
+5. Vibe DB: whether draft and live share data is disputed — test on the account.
 
 ## Demos
 - monday.monday can't host public apps and doesn't meter credits — use

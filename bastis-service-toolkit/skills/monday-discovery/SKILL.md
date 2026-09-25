@@ -12,12 +12,14 @@ the single-transcript mapping method here, then aggregates across calls.
 
 ## Step 1 — Get the transcript
 
-If asked to pull from monday Notetaker: use `@monday-mcp-ui:get_notetaker_meetings`
-to list recent meetings (filter by client/date if named, else list recent and ask
-which). Use `access: ALL` to catch calls run by other consultants. Then fetch the
-selected meeting's content. **Avoid `include_action_items: true` on the transcript
-fetch — it can crash the response on `due_date`; pull summary/topics, and get
-action items separately if needed.** If text is pasted, use it as-is.
+Pull from monday Notetaker by default (monday.monday connector — check
+`get_user_context` if several monday connectors are loaded). Meeting URL/id →
+`get_meetings_content(ids: [uuid], include_summary: true, include_topics: true,
+include_action_items: true)`. Client/date named → `explore_meetings(query: "<client>",
+access: ALL)` or `get_meetings_content(search: "<client email domain>", access: ALL,
+include_summary: false)` to list, then fetch the chosen id. For a verbatim map, add
+`include_transcript: true` for that one call only. Use Gong (`pull-gong-transcripts`)
+only if the call isn't in Notetaker; never Zoom. If text is pasted, use it as-is.
 
 ## Step 2 — Analyze the transcript
 

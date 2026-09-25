@@ -104,14 +104,42 @@ findings into the toolkit's own reference files so other skills stay current
 without Basti ever asking. This is the whole point of doing this automatically —
 he shouldn't have to remember to paste findings anywhere.
 
-Write into the connected workspace folder (Basti's local copy of this toolkit —
-currently `/Users/sebastianse/Desktop/skills copy`, but always resolve it as
-"the connected workspace folder" rather than hardcoding the path, since it may
-move):
+Write into Basti's local clone of the `sebseegy/plugin` GitHub repo — currently
+`/Users/sebastianse/Desktop/Git/plugin/bastis-service-toolkit`
+(the marketplace the live plugin installs from). The old `sebastianseegy/Plugins`
+repo and the Desktop `skills copy` folder are retired — never write there.
+Resolve the path by locating the connected folder rather than assuming this exact
+string, since it may move; if the `plugin` repo folder isn't connected, say so and
+ask Basti to connect it instead of writing anywhere else.
 
-- `monday-vibe/references/changelog.md` — any Vibe feature releases/changes this run found.
-- `monday-ai-suggester/references/changelog.md` — a summary by bucket (Agents / Sidekick / Vibe / AI in Automations) of what shipped, cross-referencing monday-vibe's changelog rather than duplicating full detail.
-- `monday-ai-advisor/references/changelog.md` — releases that change how a feature should be explained or pitched (new capability, new "how it works" detail), written so it's easy to fold into a client explanation.
+After writing the changelogs, also bump the patch version in
+`bastis-service-toolkit/.claude-plugin/plugin.json`. Read the current
+`version` string, increment the patch number (e.g. `1.2.0` → `1.2.1`), and write
+it back. Plugin updates compare version strings, so without a bump they report
+"already at latest" even with new content.
+
+Do NOT run git from this environment — the sandbox leaves `.git/*.lock` files it
+can't delete, which blocks Basti's next commit. End the digest with a one-line
+note when changelog writes and a version bump happened, e.g. "Changelog updates
+written, version bumped to X.Y.Z — commit & push from Terminal, then Update the
+marketplace in Cowork." Skip the note on runs where nothing was written.
+
+Write to the following files — one entry per skill, only when this run found something relevant to it:
+
+**AI feature skills**
+- `monday-vibe/references/changelog.md` — Vibe feature releases, capability changes, confirmed bugs.
+- `monday-agents/references/changelog.md` — Agent feature releases (new triggers, skills, org-sharing, reliability), confirmed bugs. For cross-cutting platform incidents see monday-scaling-watch.
+- `monday-sidekick/references/changelog.md` — Sidekick feature releases (new surfaces, capabilities, configuration changes).
+- `monday-ai-columns/references/changelog.md` — AI column and AI automation-action releases (new types, new actions, prompt-builder changes).
+- `monday-ai-advisor/references/changelog.md` — releases that change how a feature should be explained or pitched; written so it folds into a client explanation.
+- `monday-ai-suggester/references/changelog.md` — summary by bucket (Agents / Sidekick / Vibe / AI in Automations / General AI) of what shipped; cross-reference monday-vibe, monday-agents, monday-sidekick changelogs rather than duplicating full detail.
+- `aitp-advisor/references/changelog.md` — new AI features expanding AITP scope, methodology updates, org/governance capabilities relevant to AITP, commercial changes affecting AITP scoping.
+
+**Platform and build skills**
+- `monday-workflow-architect/references/changelog.md` — new Workflow Builder blocks, trigger types, automation recipes, limit changes, confirmed bugs in workflow execution.
+- `monday-formulas/references/changelog.md` — new formula functions, changes to existing function behaviour, expanded column-type support (e.g. formula on mirror/connect-boards), confirmed bugs.
+- `monday-solution-architecture/references/changelog.md` — new column types, board-level features (hidden columns, import changes, view improvements), cross-board capabilities, integration releases, anything that lifts previous architectural workarounds.
+- `monday-scoping/references/changelog.md` — pricing/packaging changes, new add-ons or credit models, import row-cap changes affecting migration effort, new tiers or bundling.
 - `monday-scaling-watch/references/changelog.md` — platform bugs/incidents only (not feature releases, not scaling-limit changes — those still go through monday-scaling-watch's own update flow into `limits.md`/`scaling-themes.md` when confirmed).
 
 For each file:

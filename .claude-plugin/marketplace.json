@@ -1,12 +1,15 @@
 {
   "name": "sebastianseegy",
-  "owner": { "name": "Sebastian Seegy" },
+  "owner": {
+    "name": "Sebastian Seegy"
+  },
   "plugins": [
     {
       "name": "bastis-service-toolkit",
       "source": "./bastis-service-toolkit",
-      "description": "monday.com delivery toolkit — discovery, scoping, solution architecture, UAT, AI config, Vibe board builder, and full client lifecycle.",
+      "description": "monday.com delivery toolkit \u2014 discovery, scoping, solution architecture, UAT, AI config, Vibe board builder, and full client lifecycle.",
       "homepage": "https://github.com/sebseegy/plugin"
     }
-  ]
+  ],
+  "description": "Basti Seegy's monday.com delivery toolkit"
 }

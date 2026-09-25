@@ -1,6 +1,6 @@
 ---
 name: setup-context
-description: "Internal context-fetch engine, normally run BY project-setup — not a direct entry point. Pulls account data from Kremer and call SUMMARIES for every Gong/notetaker call into the client-level Client Context and All Calls folders, and builds the call-inventory Google Sheet. If a user invokes this directly, redirect them to project-setup (the entry point) unless they explicitly want to re-pull context for an already-set-up client. Does NOT create folder structure and does NOT pull verbatim transcripts (that is pull-gong-transcripts)."
+description: "Internal context-fetch engine, normally run BY project-setup — not a direct entry point. Pulls call SUMMARIES for every client call — monday Notetaker first, Gong only for gaps — plus account data from Kremer, into the client-level Client Context and All Calls folders, and builds the call-inventory Google Sheet. If a user invokes this directly, redirect them to project-setup (the entry point) unless they explicitly want to re-pull context for an already-set-up client. Does NOT create folder structure and does NOT pull verbatim transcripts (that is pull-gong-transcripts)."
 ---
 
 # Set Up Client Context (internal engine)
@@ -31,7 +31,7 @@ When called by `project-setup`, skip the guard and just run.
 Populate a client's shared-drive context fast and completely: account data in
 `Client Context/`, and a **summary of every call** in `All Calls/`, fully indexed
 in the `call-inventory` Sheet. Verbatim transcripts are expensive and unreliable in
-bulk, so they're on-demand later (`pull-gong-transcripts`). Calls are stored ONCE at
+bulk, so they're on-demand later (`pull-gong-transcripts`, which also handles Notetaker transcripts). Calls are stored ONCE at
 client level and tagged by project — never copied into project folders.
 
 **Capture ALL calls as summaries — never ask how many.** Summaries are cheap, so
@@ -53,7 +53,28 @@ yet, suggest running `project-setup` first.
    (`level: client`, the client name — ask if not obvious, empty `skus`, etc.).
 2. Note `client_name`, `aliases`, and `monday_account_id`/`account_domain` if known.
 
-## Step 2 — account data + Gong call summaries (Kremer / Snowflake)
+## Step 2 — Notetaker calls FIRST (monday MCP, monday.monday account)
+
+Notetaker is the system of record for Basti's calls — capture from it before
+touching Gong. Full tool guide: "Call sources — Notetaker first" in
+PROJECT-STRUCTURE.md. In short:
+
+1. **Confirm the connector.** If more than one monday connector is loaded, call
+   `get_user_context` and use the one on the **monday.monday** account (Enterprise,
+   ~3k members) — not the Spaces/demo or client account.
+2. **Get the client's email domain(s)** from `meta.json` `email_domains`; if empty,
+   infer from known contacts/calls or ask once, and save it.
+3. **List every call, metadata only:** `get_meetings_content(search: "<domain>",
+   access: ALL, include_summary: false)` per domain (~100 tokens/meeting). Add
+   `explore_meetings(query: "<client name>", access: ALL, limit: 20)` for internal
+   calls about the client with no client attendees. Merge and dedupe by id.
+4. **Capture content in batches of ≤5 ids:** `get_meetings_content(ids: [...],
+   include_summary: true, include_action_items: true)`. Add `include_topics: true`
+   only for discovery/scoping calls where detail matters. Never pull transcripts here.
+5. Write each to `All Calls/notetaker-<date>-<id>.md`, `content_level: summary`,
+   English, with the meeting link in the header.
+
+## Step 3 — account data + Gong ONLY for gaps (Kremer / Snowflake)
 
 See "Tool quirks" in PROJECT-STRUCTURE.md before querying (batching/session rules
 matter).
@@ -63,27 +84,17 @@ adoption, active users, usage trends for the client (with aliases). Poll
 `Kremer:check-query-status`. Capture any account id/domain for meta. Write
 `Client Context/account-overview.md`.
 
-**List Gong calls (force raw ids):** from
+**Gong gap-fill:** list Gong calls from
 `bigbrain.l2.gong_conversations_w_transcript_and_opportunities`
-(account link `JOINT_PULSE_ACCOUNT_ID`), ask for one row per call as
-`CONVERSATION_ID|EFFECTIVE_START_DATETIME|TITLE`, demanding the full raw id.
+(account link `JOINT_PULSE_ACCOUNT_ID`) as `CONVERSATION_ID|EFFECTIVE_START_DATETIME|TITLE`,
+demanding the full raw id. **Drop every call that matches a Notetaker meeting**
+(start within ±30 min, overlapping participants) — those are already captured. For
+the rest (typically pre-sales/AE calls before Basti joined), pull
+`CALL_SPOTLIGHT_BRIEF/_KEY_POINTS/_NEXT_STEPS` + title/date/participants, ≤5 per
+query, into `All Calls/gong-<date>-<id>.md`, `content_level: summary`. If the
+account's calls sit under several account IDs, capture all of them.
 
-**Pull SUMMARY fields for every call, ≤5 per query:** fetch
-`CALL_SPOTLIGHT_BRIEF/_KEY_POINTS/_NEXT_STEPS` + title/date/participants, batched,
-concatenated **across as many batches as it takes to cover every call** — a large
-count (100+) just means more batches, not a reason to stop or ask. Write one file
-per call to `All Calls/gong-<date>-<id>.md`, `content_level: summary`. Do NOT pull
-transcripts here. If the account's calls are linked under more than one account ID,
-capture all of them (re-query the missing IDs) rather than asking which to include.
-
-## Step 3 — notetaker calls (monday MCP)
-
-Call `@monday-mcp-ui:get_notetaker_meetings` with `search` = client name,
-`access: ALL`, `include_summary: true`, `include_topics: true`,
-**`include_action_items: false`** (it crashes on due_date — fetch separately if
-needed). Paginate. Write each clearly-this-client meeting to
-`All Calls/notetaker-<date>-<id>.md`, `content_level: summary`, normalized to
-English. Don't inline large transcripts — reference the meeting id in Notetaker.
+Never use Zoom (MCP or plugin) as a call source.
 
 ## Step 4 — tag every call (relevance, audience, project)
 

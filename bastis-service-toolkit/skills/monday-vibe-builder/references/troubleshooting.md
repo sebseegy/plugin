@@ -39,6 +39,6 @@
 | `Board is not a constructor` runtime error | Seen on early MCP builds | Opus fix prompt; rebuild if persistent |
 | AI list output shows `[object Object]` | Bullet formatting | "Force markdown '-' bullets in AI responses" |
 | Builder stuck loading / Stop greyed | Platform issue (fixed 2026-09-24 instance) | Wait/refresh; revert; DoW |
-| Draft data vs live data differ (Vibe DB) | Separate DBs by design | Seed live / migration |
+| Draft data vs live data differ / overwrite each other (Vibe DB) | Draft/live DB behaviour disputed (shared per PM, separate per playbook) | Test; use separate dev/prod tables or a duplicate app |
 | Guest can't see app | Not invited to app AND every board; or on mobile | Invite to both; verify on desktop |
 | Linter error in `src/generated` | Code gen error | Paste the error text into a `vibe_update` |

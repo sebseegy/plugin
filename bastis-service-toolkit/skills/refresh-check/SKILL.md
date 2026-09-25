@@ -24,14 +24,16 @@ or hit an error worth flagging.
    `setup-context`).
 
 2. **Cheap ID-only lookups — never pull content here:**
-   - Notetaker: `@monday-mcp-ui:get_notetaker_meetings`, `search` = client name,
-     `access: ALL`, **all include_* flags false** (ids/titles/dates only — no
-     summaries, no topics, no action items, no transcripts). One page is usually
-     enough to spot new ids; only paginate if the first page is all-new.
-   - Gong: a single Kremer query asking ONLY for `CONVERSATION_ID`s for the account
-     dated after `last_context_sync` (ids only, no spotlight fields, no transcript).
-     If `last_context_sync` is very recent, this can be skipped — but per design we
-     still run the notetaker id check.
+   - **Notetaker first** (monday.monday connector): for each domain in
+     `email_domains`, `get_meetings_content(search: "<domain>", access: ALL,
+     include_summary: false)` — returns ids/titles/dates/participants only
+     (~100 tokens per meeting). If `email_domains` is empty, use
+     `explore_meetings(query: "<client name>", access: ALL, start_time_from:
+     <last_context_sync>, limit: 10)` instead.
+   - **Gong only as a gap check**: skip it when Notetaker shows calls on the dates in
+     question. Run the single Kremer ids-only query (`CONVERSATION_ID`s after
+     `last_context_sync`) only if `last_context_sync` is older than 7 days or the
+     task is a sales handover. Never Zoom.
 
 3. **Diff against `call_sources`.** Any ids returned that aren't already captured are
    "new". **If there are none → stop immediately and return control to the task.**
@@ -42,7 +44,7 @@ or hit an error worth flagging.
 
 Pull summaries for **just the new ids** (not everything) — same logic as
 `update-context` Step 2/3, scoped to the new calls only: summary fields ≤5 per Kremer
-batch, notetaker summary+topics with `include_action_items: false`, written to
+batch, notetaker `include_summary: true, include_action_items: true` (≤5 ids per call), written to
 `All Calls/` at `content_level: summary`, English, tagged (relevance / audience /
 projects — unsure → mixed + internal-only; for `projects`, infer the project(s) the
 new call serves and tag them, or `general` if it serves none/the relationship

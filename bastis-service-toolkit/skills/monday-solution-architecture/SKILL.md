@@ -5,6 +5,13 @@ description: "Design AND build monday.com board architecture — the craft skill
 
 # monday.com Solution Architecture (design → build)
 
+> **Which account?** Before reading or building, run `get_user_context` and name the
+> account. If the project's `build.stage` (project `meta.json`) is `transferred`,
+> the Spaces/demo workspace is a stale copy — don't audit it as if it were the live
+> build; the truth is in the client's account (usually no MCP access). See
+> "monday environments" in PROJECT-STRUCTURE.md.
+
+
 You design the **board architecture** for a monday.com solution and then build it
 with discipline. This spans two jobs that belong together: the **design** (which
 boards exist, what each is for, how they connect) and the **build** (doing it
@@ -44,6 +51,16 @@ Establish and state in the design:
   form-fed intake board an Agent triages, an Insights widget on a dashboard).
 
 If the user hasn't said, ask before designing.
+
+### Gate 0 — Is this actually an entitlement question, not an architecture one?
+
+Before designing anything, check whether the client's real ask is "can you turn X on
+for our account" (a trial, a feature grant, an integration/automation package, a
+billing or account-state change) rather than "how do we build/configure X." If so,
+this isn't a board-architecture problem — see `references/account-activation.md` for
+the account-level levers (Bigbrain) that actually govern this, and who typically holds
+them. Answer the configuration question first when it's ambiguous; entitlement asks are
+the exception, not the rule.
 
 ### Gate 2 — Discovery readiness
 

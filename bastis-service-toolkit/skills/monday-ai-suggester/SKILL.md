@@ -14,7 +14,7 @@ The whole point of this skill: **the platform is shifting hard toward AI and the
 the consultant will provide one of:
 - **Pasted transcript or summary** — work with what she gave you.
 - **Discovery map output** — chained from `monday-discovery`, just take the previous output as input.
-- **Reference to a Notetaker meeting** — pull the transcript via `monday.com:get_notetaker_meetings` (same flow as `meeting-recap` and `monday-discovery`).
+- **Reference to a Notetaker meeting** — fetch it with `get_meetings_content(ids: [uuid], include_summary: true, include_topics: true)` on the monday.monday connector (same flow as `monday-discovery`); find ids with `explore_meetings(query, access: ALL)`.
 
 If the input is unclear or she just said "AI ideas" without context, ask which client/call she means. Don't guess.
 

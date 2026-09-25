@@ -5,6 +5,12 @@ description: On-demand, targeted retrieval of FULL verbatim Gong transcripts for
 
 # Pull Gong Transcripts (targeted, on-demand)
 
+> **Notetaker calls don't come through here.** If the call is a Notetaker meeting
+> (`source: notetaker`, uuid id), fetch verbatim directly with
+> `get_meetings_content(ids: [uuid], include_transcript: true)` on the monday.monday
+> connector — one call at a time, then save it as `content_level: full`. This skill
+> is only for Gong calls (mostly pre-sales/AE calls Notetaker didn't record).
+
 Retrieve the FULL verbatim transcript for one or more **specific** Gong calls and
 upgrade their context files from summary to full. This is a surgical deepening
 step, not a bulk operation — `setup-context` already captured summaries for every

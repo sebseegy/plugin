@@ -116,8 +116,8 @@ gallery are UI-only — mention them to the IC as an option.
 **Vibe DB**
 - "Use Vibe DB to store [entity]. Keep [other entity] on the [Board] board and link
   each [entity] record to its [board item]." (time-tracking reference pattern)
-- "Create separate dev and prod tables in Vibe DB." (Draft and Live data are
-  separate DBs — seed both or build a migration.)
+- "Create separate dev and prod tables in Vibe DB." (Whether draft and live share
+  one DB is disputed — test before relying on it.)
 
 **Files to a file column (fullstack)** — Vibe eng pattern: "Read files with
 .withAssets(), not .withColumns(). To upload: use the presigned create_upload →

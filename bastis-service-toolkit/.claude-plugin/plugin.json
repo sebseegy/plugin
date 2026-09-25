@@ -1,4 +1,10 @@
 {
   "name": "bastis-service-toolkit",
-  "description": "Basti Seegy's personal fork of the monday.com services toolkit: project status reporting and solution design, plus a weekly-refreshed product-update pulse sourced from the ICs Product Updates board, Slack, and monday-all."
+  "version": "1.2.1",
+  "description": "Basti Seegy's personal fork of the monday.com services toolkit: project status reporting and solution design, plus a weekly-refreshed product-update pulse sourced from the ICs Product Updates board, Slack, and monday-all.",
+  "homepage": "https://github.com/sebseegy/plugin",
+  "author": {
+    "name": "Sebastian Seegy",
+    "email": "sebastianse@monday.com"
+  }
 }

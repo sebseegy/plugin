@@ -1,11 +1,15 @@
 # Sebastian Seegy — Claude Plugin Marketplace
 
-Personal plugin marketplace for Claude desktop.
+Personal plugin marketplace for Claude (Cowork / desktop / Claude Code).
 
 ## Install
 
-Add as marketplace in Claude desktop: `sebastianseegy/Plugins`
+Cowork → Customize → Plugins → + → Add marketplace → Add from a repository →
+`https://github.com/sebseegy/plugin`
+
+Claude Code: `claude plugin marketplace add sebseegy/plugin`
 
 ## Plugins
 
-- **bastis-service-toolkit** — monday.com delivery toolkit (30 skills)
+- **bastis-service-toolkit** — monday.com delivery toolkit (38 skills). Bump
+  `bastis-service-toolkit/.claude-plugin/plugin.json` `version` on every change.

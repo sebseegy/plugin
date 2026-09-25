@@ -79,11 +79,10 @@ Vibe is monday.com's AI-powered app builder. It reads structured data from board
 - **Polling** — for real-time updates on board data, apps must poll every 3–5 seconds. Vibe DB
   instead ships real-time hooks natively (`useVibeQuery`, `usePresence`, `useBroadcast`) — no
   manual polling needed for that layer.
-- **Only the creator can edit an app** — no multi-editor collaboration yet (still being asked
-  about as of 2026-08-19 with no change). Ownership is transferable, and a public template link
-  can be shared for others to duplicate — see the Duplicate/Template capability below, which
-  makes this less of a limitation in practice than it sounds, though see the caveat on its
-  reliability below too.
+- **Multi-editor building is live** (full release 2026-09-13, gradual rollout): Editors can
+  prompt, publish and add editors; only the Owner can unpublish, delete or transfer; an
+  unpublished app allows only one editor, and unpublishing removes all collaborators.
+  (Superseded the Aug 2026 "only the creator can edit" state.)
 - **Large boards (10k+ items)** are only supported on apps created from **2025-09-25** onward —
   older apps need to be duplicated/rebuilt to get this, it isn't retroactive.
 - **No version control or staging environment for a live app** — confirmed as a live, unresolved

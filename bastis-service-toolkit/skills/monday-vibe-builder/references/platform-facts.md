@@ -83,7 +83,12 @@ Vibe FAQ (https://monday.monday.com/docs/18397954182), 2026 Release Board
 | API request | 1 per call — each page of a paginated response counts |
 | Image generation (runtime) | <10 per image |
 | Viewing app, board reads/writes, exports | Free |
-- Failed/error prompts are free; Stop charges up to the stop point.
+- **Failed prompts — disputed:** the pricing SOT says failed/error prompts are free;
+  production builds (Wren, WHSmith, Aug–Sep 2026) saw credits consumed on failed
+  runs and retries. Budget as if they're charged. Stop charges up to the stop point.
+- Observed per prompt in real builds: ~35 small targeted fix · 141–221 scoped change ·
+  417–454 large multi-part prompt. One customer burned ~4,000 credits fighting an
+  authorization bug — escalate platform issues early instead of re-prompting.
 - Apps keep working at 0 credits unless they use runtime AI.
 - Medium app ≈ 2,000 build credits (Amichay, 2026-09-09) — wide variance.
 - Demo accounts and monday.monday don't meter credits → can't measure POC cost there.
@@ -135,6 +140,14 @@ as guests to dodge seats is a licensing issue — don't propose it.
   (`create_item`, `create_subitem`, `change_multiple_column_values`) with 403
   USER_UNAUTHORIZED since ~2026-09-20; reads fine. Don't promise public write-back.
 - **BUG:** "incorrect password" on correct password (2026-09-11, DoW open).
+- No IP allow-listing or domain restriction for public apps (account IP restrictions
+  don't apply). If a client needs one, public is the wrong model.
+- Open security question (Aug 2026, unanswered): whether build-time external
+  libraries (npm fonts, chart libs) are sandboxed from app data. Name it as an open
+  risk on any public app with sensitive data.
+- Building your own login for public apps (OTP/token pattern, Wren portal):
+  `../../vibe-board-builder/references/platform-facts.md` → "Building your own
+  authentication". It depends on public writes, so it's blocked while the 403 bug is open.
 - RM: per-user login for public apps (end of year, extra cost), custom domain (no
   ETA), SSO for non-monday users (further out), "Powered by monday vibe" watermark.
 

@@ -39,6 +39,16 @@ records in Vibe DB (time entries) linked by item ID.
   explicitly in the prompt when board structure must NOT be modified.
 - Deleted connected board → other users redirected to it. Fix: disconnect it.
 - Swapping boards: build on mock boards, then swap to live via Boards header (UI).
+- **Board → app signalling** (nothing on a board can call into an app): whoever
+  changes source data stamps a date+time column (UTC) on the record; the app compares
+  it with the stamp its cache last consumed and rebuilds only if newer. Keep a manual
+  Refresh. When two apps share a stamp, specify its column ID, format and comparison
+  identically in both apps' prompts.
+- Automations reacting to a **mirror** column: `create_automation` rejects mirror
+  triggers; the legacy "when mirrored status changes" recipe must be built by hand.
+- localStorage caching caveat: a naive "some fields present" write-guard can cache a
+  half-empty fetch and serve it for the whole TTL (hard reload doesn't clear it). Keep
+  TTLs short during active data entry, or cache server-side in Vibe DB.
 
 ## Vibe DB (fullstack left-pane apps created since ~2026-08-26)
 - Enable: prompt "use Vibe DB to store the data" or + → Integrations → Advanced →

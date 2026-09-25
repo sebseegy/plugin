@@ -31,6 +31,8 @@ over the in-channel "vibe support bot", which is often wrong.
 | `references/data-layer.md` | Choosing boards vs Vibe DB, >500 items, subitems, files, sync |
 | `references/troubleshooting.md` | Anything fails, stalls, errors, shows wrong/missing data |
 | `references/delivery-playbook.md` | Scoping effort, dev→prod, client handover, credit exemptions |
+| `../vibe-board-builder/references/platform-facts.md` | Production lessons from real client builds (Wren Kitchens, WHSmith): private-app access and deep links, building your own login, board→app signalling, Memory, credits observed |
+| `../vibe-board-builder/references/architecture-patterns.md` | Proven board layouts (events, knowledge hub, catalog, quiz, role-based ops app) before Phase 2 |
 
 ## Non-negotiable guardrails
 
@@ -196,15 +198,27 @@ After each meaningful step:
    - "What happens for a user who can't see board X?"
 3. Cross-check data: read the same board via the monday MCP and compare counts/
    fields against what `vibe_ask` says the app shows.
-4. Ask the IC for a 60-second visual pass via `editor_link` on anything
+4. Don't trust Vibe's self-report. Completion messages can be wrong, and every
+   `vibe_ask` reply ends with the same "turn off Discuss mode and hit Build" footer
+   whether or not anything was built. Ask for a code trace against a concrete case
+   ("what happens when a PM opens PR2159 and submits £500?") and a yes/no "BUILT or
+   NOT BUILT", and look for specific detail that matches earlier work.
+5. After any business-rule change, ask Vibe to list its App Memory. Vibe saves rules
+   to memory on its own, and stale rules later fight new prompts.
+6. Ask the IC for a 60-second visual pass via `editor_link` on anything
    layout/brand-related — state exactly what to look at.
 
 ### Phase 6 — Iterate
 
 One change per `vibe_update`, then poll and QA again. Pick the model per prompt:
 Flash for copy/colour tweaks, Sonnet for features, Opus for multi-page work,
-performance, persistent bugs and rebuilds. If two fixes fail, revert-and-rethink
-(see troubleshooting) rather than stacking patches. The full prompt sequence
+performance, persistent bugs and rebuilds. If a change landed but is simply wrong,
+send `vibe_update(prompt="undo this")` — it reverts the last edit and is cheaper than a
+corrective prompt. If two fixes fail, revert-and-rethink (see troubleshooting)
+rather than stacking patches. If several build prompts produce no code change, the
+app is probably stuck in Discuss mode (a UI toggle) — ask the IC to switch it off.
+Budget prompts as if failed ones are charged: the pricing doc says they're free, but
+real builds (Wren, WHSmith) saw credits burned on failed runs. The full prompt sequence
 template, design-direction block and proven prompts are in
 `references/prompt-playbook.md`.
 
@@ -212,7 +226,11 @@ template, design-direction block and proven prompts are in
 
 Run these as explicit prompts/asks where relevant (details in playbook):
 pagination beyond 500 items · caching for 1,000+ items · column IDs not positions ·
-behaviour for users with partial board access · empty/error/loading states ·
+behaviour for users with partial board access · any per-user or role rule enforced
+server-side on every read and write (hidden buttons and URL flags aren't security) ·
+the people column that grants access is filled on every live record · deep links
+put the record key in the route path (private apps strip extra query parameters;
+`<name>.v.monday.app` links die when the app goes private) · empty/error/loading states ·
 mobile layout if field users · no hard-coded user IDs · noon-local dates ·
 dark/light theme tokens · confirm-before-write on production data.
 
@@ -244,13 +262,19 @@ Ownership transfer to the client and adding client editors happen in the UI.
   ask the IC to copy the code from the builder, paste it into Prompt 0 of a new app,
   build on Opus (multi-page apps: one page per prompt). Gate 1 applies.
 - **Duplicate for another client / board set** → UI only (Duplicate → connect new
-  boards, or public template link cross-account). Explain the steps.
+  boards, or public template link cross-account). Explain the steps, then verify with
+  `vibe_ask` which board IDs the copy actually reads — re-pointing has kept the
+  original boards in about half of reported cases.
 - **Connect/disconnect boards on an existing app** → not an MCP tool yet; UI Boards
   header or ask in a `vibe_update`.
 
 ## When to hand off instead
 
 - Paste-ready prompt only, no MCP → `monday-vibe`.
+- Basti pastes prompts into Vibe himself and wants each reply judged → `vibe-prompt-injection`.
+- Greenfield board backend + first build prompt without MCP Vibe tools → `vibe-board-builder`.
+- Anything scheduled or agent-driven that calls `vibe_update` unattended — unattended
+  runs were reported failing every time (Aug 2026); verify live before relying on it.
 - Board schema design → `monday-solution-architecture`; formulas → `monday-formulas`.
 - Automations/workflows the app should trigger (Vibe cannot create automations —
   it writes to a board and a board automation fires) → `monday-workflow-architect`.

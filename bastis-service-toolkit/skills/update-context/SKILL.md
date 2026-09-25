@@ -22,7 +22,9 @@ tell you what NOT to fetch again.
 Use the monday connector on the **monday.monday** account (check `get_user_context`
 if several are loaded). For each domain in `email_domains`:
 `get_meetings_content(search: "<domain>", access: ALL, include_summary: false)` —
-metadata only, cheap. Add `explore_meetings(query: "<client name>", access: ALL,
+metadata only, cheap. If `email_domains` is empty (older clients), take the domain
+from existing call participants or ask once, and save it to `meta.json`. Add
+`explore_meetings(query: "<client name>", access: ALL,
 start_time_from: <last_context_sync>)` for internal calls about the client. Keep ids
 not already in `call_sources.notetaker_meeting_ids`, then fetch them ≤5 at a time
 with `include_summary: true, include_action_items: true`. Write to `All Calls/`,

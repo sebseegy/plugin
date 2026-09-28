@@ -43,8 +43,18 @@ Field-confirmed prioritization at snapshot:
 total per portfolio** caps (see limits.md) are the constraints PAS is working
 around. Watch for these numbers changing as PAS ships.
 
-**Check Slack for:** `portfolio at scale`, `PAS`, `5000 projects`, `portfolio
-limit`, `750 portfolio` in #ask-projects, #cco-enablement-updates, #emea-services.
+**Updated Sep 2026 (from #ask-projects sweep):**
+
+- **Gradual beta rollout is active.** The intermediate milestone is **1,000 projects** per portfolio (not 5,000 yet). Multiple ICs asking about this as recently as Sep 26 — no firm GA date confirmed. Nomination form to get client accounts into the beta: https://forms.monday.com/forms/5c9649c996c6839153fcabd87c7fa24d (Itay Tzafrir, Sep 23).
+- **No migration for existing portfolios.** PAS only applies to new portfolios going forward. Existing 200-project portfolios do NOT auto-expand (Omer Erlichman, Aug 20).
+- **750 → 2,000 connected items per project board: field-observed, not PM-confirmed.** Two ICs (Sep 1, Sep 26) reference this increase. No PM reply visible in those threads. Do not quote to clients until confirmed. Check #ask-projects or the Guru card.
+- **Subitems in portfolio boards = unsupported pattern.** The portfolio board item cap is 200 items+subitems combined (1 item = 1 connected project). Clients adding subitems will hit the cap much faster than expected. Product has explicitly flagged this as unsupported (Mor Tzhory, Aug 27).
+- **Projects with item-level/column-level permissions can't be connected by non-owners.** Project owner must perform the connection themselves (Ofir Strull, Sep 8).
+- **Capacity Manager / Resource Planner does not yet scale with PAS.** No confirmed increase to those limits when PAS is in use (Alisha Chen, Sep 9).
+- **Portfolio automation bug (active as of Sep 25).** "When item created in portfolio → create project from template" automation does not auto-connect the new project to the portfolio (broken link icon). No resolution visible yet.
+
+**Check Slack for:** `portfolio at scale`, `PAS`, `5000 projects`, `1000 projects`, `portfolio
+limit`, `750 portfolio`, `2000 connected items` in #ask-projects, #cco-enablement-updates, #emea-services.
 For project-specific limit questions the field is routed to Nathanel Mori.
 
 ## 3. Vibe app connected-board limit

@@ -5,6 +5,24 @@ automatically by `weekly-pulse` each time it runs. This skill still pulls
 fresh data every time it runs (Step 2 in SKILL.md) — this log is a
 quick-start baseline, not a replacement for that pull.
 
+## 2026-09-21 to 2026-09-28
+
+**Agents**
+- **HubSpot integration** — Agents on the monday AI Platform can now read/write HubSpot contacts, companies, deals and sync pipeline stages. Broader product availability coming. Strong AITP use case for clients running CRM alongside monday.
+  Source: Slack #cco-enablement-updates (Sep 27)
+
+**AI in Automations / Workflows**
+- **Workflow MCP reliability improvement** — Field configuration via MCP now significantly more reliable: ~14% fewer expert calls per turn, 17% faster per call, total expert time per workflow build dropped from ~267s to ~193s. Less relevant to end-users, but reduces build time when using MCP to construct workflows for clients.
+  Source: Slack #ai-workflow-group (Sep 22–27, Lior Lamachinsky)
+
+**Vibe**
+- **ENT-readiness signal** — Internal stakeholder (Gal Amid Hahn, product-adjacent) described Vibe progress as "big news to make our deals happen" in context of Enterprise readiness. No feature detail yet — watch #ask-vibe-ai.
+  Source: Slack #ask-vibe-ai (Sep 22)
+
+**Platform context**
+- AI feature shutdown rates at Enterprise (internal stat, Sep 27): 18% of ENT members blocked from Agents, Vibe 9%, AI Blocks 8%, Notetaker 7.5%, Sidekick 6%. Useful for AITP scoping conversations to calibrate where governance friction lives.
+  Source: Slack #ai-workflow-group (Ziv Pitshon, Sep 27)
+
 ## 2026-09-17 to 2026-09-24
 
 **Agents**

@@ -5,6 +5,13 @@ automatically by `weekly-pulse` each time it runs. Check this before
 explaining a feature so the explanation reflects current capability, not
 just the static description in SKILL.md.
 
+## 2026-09-21 to 2026-09-28
+
+- **HubSpot as an agent tool** — When explaining what agents can connect to externally, add HubSpot: agents on the monday AI Platform can now read/write contacts, companies, deals, and sync pipeline stages. Pitch angle: "your agent can act across monday and HubSpot in one workflow." Availability is currently AI Platform only; broader rollout TBC.
+  Source: Slack #cco-enablement-updates (Sep 27)
+- **Agent Org Directory governance — how to explain it** — When clients ask "how do we control who can build or share agents?", you now have a clean answer: account-level toggle controls who can publish to the org directory; a require-approval flow exists for users without direct publish rights; admins can deactivate agents but cannot re-share them (only the creator can). Enterprise only. Note: admin can deactivate but not delete agents.
+  Source: Slack #ai-agents-product-updates (Sep 22–23, Simon Shubbar)
+
 ## 2026-09-17 to 2026-09-24
 
 - **Agents on permission-restricted boards — limitation REMOVED (Sep 23)** —

@@ -6,6 +6,13 @@ covers what weekly-pulse has caught so far, so still confirm anything
 stakes-sensitive against support.monday.com and Slack per the main skill
 instructions.
 
+## 2026-09-21 to 2026-09-28
+
+- **ENT-readiness — unconfirmed signal** — Internal stakeholder (Gal Amid Hahn) referenced Vibe becoming "ENT ready" as "big news to make our deals happen" (Sep 22, #ask-vibe-ai). No specific feature announced. Watch the channel for follow-up. Also noted: Amichay Even Chen said a data issue was removed temporarily (Sep 25) with a fix not expected before end of year.
+  Source: Slack #ask-vibe-ai (Sep 22–25)
+- **Scrolling bug in split-screen layout (active)** — Split screen (timeline top / list bottom) has a scrolling issue where the cut-off at initial load doesn't update when scrolling from the top pane. No fix confirmed as of Sep 28. If a client hits this, raise in #ask-vibe-ai.
+  Source: Slack #ask-vibe-ai (Sophie Morgan, Sep 28)
+
 ## Catch-up, added manually 2026-09-24
 
 Releases weekly-pulse hadn't logged, confirmed via Company Brain and the support

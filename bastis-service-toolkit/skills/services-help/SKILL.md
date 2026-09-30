@@ -99,7 +99,8 @@ missing, say what you couldn't read.
 `solution-build`, `uat`, `go-no-go`, `hypercare-report`, `closure-package`,
 `solution-card`
 **Craft — Build:** `monday-solution-architecture` (entry), `monday-build-docs`,
-`monday-formulas`, `monday-scaling-watch`
+`monday-formulas`, `monday-scaling-watch`, `monday-build-replicator` (source → client transfer),
+`monday-dev-center` (live client account work via the API playground)
 **Craft — AI:** `monday-ai-advisor` (entry), `monday-ai-suggester`, `monday-agents`,
 `monday-sidekick`, `monday-ai-columns`, `monday-vibe`, `aitp-advisor`
 **Craft — Client work:** `monday-scoping`, `monday-discovery`, `call-prep`,

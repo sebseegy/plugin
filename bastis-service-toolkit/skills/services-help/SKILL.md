@@ -105,3 +105,5 @@ missing, say what you couldn't read.
 `monday-sidekick`, `monday-ai-columns`, `monday-vibe`, `aitp-advisor`
 **Craft — Client work:** `monday-scoping`, `monday-discovery`, `call-prep`,
 `meeting-followup`
+**Craft — Solutions & docs:** `monday-solution-architect` (research + propose a fix for a client's product question), `presentation-design`, `morph-ppt`, `officecli`
+**Working style:** `debrief`, `karpathy-guidelines`

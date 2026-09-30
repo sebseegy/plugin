@@ -11,5 +11,5 @@ Claude Code: `claude plugin marketplace add sebseegy/plugin`
 
 ## Plugins
 
-- **bastis-service-toolkit** — monday.com delivery toolkit (40 skills). Bump
+- **bastis-service-toolkit** — monday.com delivery toolkit (46 skills). Bump
   `bastis-service-toolkit/.claude-plugin/plugin.json` `version` on every change.

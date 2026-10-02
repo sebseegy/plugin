@@ -13,8 +13,8 @@ using a mutation that isn't listed here, check its signature with the schema too
 5. Boards, groups, folders, owners
 6. Views
 7. Dashboards and widgets
-8. Automations
-9. Forms and status-change rules
+8. Automations (incl. Workflow Builder limits and run history)
+9. Forms (read, prefill, show logic) and status-change rules
 10. Error messages → what they mean
 11. Checking the schema
 
@@ -26,6 +26,8 @@ using a mutation that isn't listed here, check its signature with the schema too
 - **Variables panel:** needed for JSON arguments that are awkward to escape inline (widget settings, column defaults). The variable **type must match the argument exactly**: `$w1: JSON!` for `create_widget(settings:)`, `$m: JSON` for `create_column(defaults:)`. A mismatch gives "Variable $w1 of type JSON used in position expecting JSON!".
 - **Inline JSON:** also works as an escaped string, e.g. `defaults: "{\"formula\":\"...\"}"`. Use it when the Variables panel is suspected of causing trouble.
 - **Aliases:** put many operations in one request (`del_fy: delete_column(...)`, `t01: ...`). Each alias succeeds or fails on its own, and a failure shows up in `errors[].path`. Prefer 5–30 ops per part.
+  - **~10 mutations per request is the safe size.** 59 `change_column_title` aliases in one request returned **HTTP 504 Gateway Timeout**. Split into batches of 10 and run them one after another; a rename re-run is harmless (same title).
+  - In a read query, **one unauthorized alias on a non-null field can null the whole response.** Put risky reads in their own query.
 - **Comments:** `# note` lines inside a mutation are allowed. Use them to label what each line does, e.g. old → new values.
 - **Complexity:** add `complexity { before query after }` to big reads. The budget is ~10M per minute; a full workspace structure read cost ~40k, and item reads of 1,100 items ~60k.
 - **Settings field:** use `settings_str` (not `settings`) in reads. It works on every column type in the client playground.
@@ -102,11 +104,22 @@ using a mutation that isn't listed here, check its signature with the schema too
   - Automations whose trigger column was deleted. They silently stop.
 - The new builder stores the chosen column's display title in the config. After a rename or delete the title can show "Error" while the id is correct. Re-selecting the column in the UI clears it.
 - **Order of work:** build and test the replacement **before** deleting the broken automation, so nothing goes unassigned in between.
+- **Workflow Builder workflows (the canvas, workflow objects in folders) can't be read.** `board_automations` doesn't return them, per object id or account-wide, and `get_live_workflows_page` / `get_live_workflow` / `count_active_workflows` exist in `dev` but return **USER_UNAUTHORIZED** even for an admin token. Read them from **UI screenshots** (canvas plus each block's side panel).
+- **Run history:** `trigger_events(filters: {automationIds: [..]})` → `trigger_event(triggerUuid)` → `block_events(triggerUuid) { blockEvents { title eventState errorReason userId } }` gives each run and the error per block. (`boardId` inside block events threw an internal error; leave it out.) `board_automations(ids: [<9-digit legacy id>])` threw an internal error too; query runs separately.
+- **Who changed what:** `audit_logs(limit, start_time, end_time) { logs { timestamp event user { id name } activity_metadata } }` only has admin and security events (user deactivated, role changed), not automation edits, and has no `next_page`. A legacy recipe's `configUpdatedAt` shows *when* it was last edited, not by whom.
+- **Code blocks and the two-workflow link-back pattern:** see `workflow-code-blocks.md`.
+- **Portfolio "create project from template" recipes point at a template id, not a board id.** `project_template_unavailable` in the run history means the template has to be re-selected in the recipe (UI).
 
-## 9. Forms and status-change rules (UI)
-- Forms (questions, required fields, help text, conditional logic) are UI. The API can't read form settings reliably. Ask for a screenshot and check the question → column mapping from it.
+## 9. Forms and status-change rules
+- **Read a form:** `form(formToken: "<hex>") { title active questions { id type visible title required show_if_rules } }`. The **question id is the column id**, so one read maps every question to its column.
+  - The token is the hex segment after `/forms/` in the **full** URL. Short links (`wkf.ms/...`) don't work: open them in a browser and copy the address they redirect to.
+  - `show_if_rules` has the shape `{operator, rules: [{operator, conditions: [{building_block_id: <question id>, values: [<label ids>]}]}]}`. Map the label ids to names from the column's `settings_str`. A condition with **empty `values`** means the question never shows.
+  - Read both forms of a board in one query to find questions that use **different columns for the same thing** (a common cause of data landing in a column nobody maps).
+- **Change a form:** `update_form_question(formToken, questionId, question: {type: <Type>, title: "..."})` worked with only type + title. Show logic, order, adding and deleting questions: **UI**.
+- **Prefill via URL:** a form question can be prefilled from a URL parameter (set up in the form's prefill settings). Example: a workflow on the parent board writes a link column `…/forms/<token>?code={Code}&parent_id={Item ID}` per item, and the request then carries the parent's item id in a text column. Short links pass the parameters on.
+- **A column can be on a form only once.** When moving a question between columns, delete the old question first, then add the new one.
 - **Status "label change conditions"** (status column → *Set conditions to change label* → e.g. Declined → Decline Reason required) **enforce** required fields when a status changes. Use them instead of a "remind if empty" automation.
-- Deleting a column removes its form question. Check the form before deleting a column that might be a question.
+- **Deleting a column removes its form question**, and a Workflow Builder step that references it can switch off the whole workflow. Check forms and workflows before deleting.
 
 ## 10. Error messages → what they mean
 | Error | Meaning / fix |
@@ -118,6 +131,10 @@ using a mutation that isn't listed here, check its signature with the schema too
 | `Cannot delete mandatory column` | Subitems or a built-in CRM column. Hide or repurpose it |
 | `Invalid request` (INVALID_ARGUMENT_EXCEPTION, no detail) on `create_column` mirror on a CRM board | Stop retrying after 2 variants and give UI steps |
 | A column is created but `settings_str` is `{}` | `defaults` was missing (variables not attached). Delete it and recreate with defaults |
+| `HTTP Error 504: Gateway Timeout` on a large mutation | Too many aliases in one request. Split into batches of ~10 and re-run; renames are idempotent |
+| `USER_UNAUTHORIZED` on `get_live_workflow(s)` | Workflow Builder objects aren't readable with a user token. Use screenshots |
+| `Invalid form token` / form not found | A short link was used. Copy the hex token from the redirected `forms.monday.com/forms/<hex>` address |
+| `There are items that are not in the connected boards` | The connect column's board list doesn't include the linked item's board, or the ids are swapped |
 
 ## 11. Checking the schema
 - The schema is the same for every account. Reading it is not client data.

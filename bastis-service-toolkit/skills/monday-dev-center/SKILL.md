@@ -16,6 +16,8 @@ Roles:
 
 Before writing any query or mutation, read `references/api-capabilities.md`. It holds the field-tested limits: what works via the API, what has to be UI, and what each error message means. Copyable queries are in `references/query-templates.md`.
 
+When a native block can't do the job (dynamic target board, setting a connect column from a computed id, creating and linking items across boards), read `references/workflow-code-blocks.md`. It has the Workflow Builder Code block pattern that calls the monday API without a token, a code template, and the gotchas that cost test rounds. Claude writes the code; Basti pastes it in and tests.
+
 ## Guardrails (and why)
 1. **No tokens in chat.** If Basti pastes one, say so plainly and tell him to regenerate it in the Developer Center. A token never goes into files, examples or memory.
 2. **Claude never calls the client account.** This includes monday MCP connectors and the browser. MCP schema tools (`get_graphql_schema`, `get_type_details`, widget schema) are fine, because the schema is the same for every account and reading it isn't client data. MCP **data** tools are not. If Basti sends a client board link, ask for a query result or a screenshot instead.

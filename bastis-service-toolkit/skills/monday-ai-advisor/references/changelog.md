@@ -5,6 +5,21 @@ automatically by `weekly-pulse` each time it runs. Check this before
 explaining a feature so the explanation reflects current capability, not
 just the static description in SKILL.md.
 
+## 2026-10-12 to 2026-10-19
+
+- **Agents and sensitive data** — Update the answer: agents respect item viewing restrictions and can now also delete items; Brain filters limit what gets indexed (items, Slack threads). Admin sharing governance is live.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13323185596, https://monday.monday.com/boards/18411697232/pulses/13263116362, https://monday.monday.com/boards/18411697232/pulses/13285480379, https://monday.monday.com/boards/18411697232/pulses/13323267895)
+- **Agent reach** — Add channels (Messenger; Phone v2 but Israel/US only), external API triggering, DocuSign MCP. Do not pitch SharePoint/OneDrive until confirmed.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13297281776, https://monday.monday.com/boards/18411697232/pulses/13297283824, https://monday.monday.com/boards/18411697232/pulses/13297282151, https://monday.monday.com/boards/18411697232/pulses/13263091187)
+- **Workflows** — Webhook-in and Categorize with AI blocks change the "what can a workflow react to" answer.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13319899275, https://monday.monday.com/boards/18411697232/pulses/13319899553)
+- **Credits caveat** — My Agents under-counts; Admin view correct. Mention proactively in onboarding.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13285463155)
+- **Sidekick** — Roadmap only: convergence into one entry point for Vibe/Agents/Workflows (internal).
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13285480521)
+- **Proof point** — Gartner CWM Leader 4th year running.
+  Source: https://monday.com/blog/project-management/blog-project-management-2026-gartner-magic-quadrant-cwm
+
 ## 2026-09-21 to 2026-09-28
 
 - **HubSpot as an agent tool** — When explaining what agents can connect to externally, add HubSpot: agents on the monday AI Platform can now read/write contacts, companies, deals, and sync pipeline stages. Pitch angle: "your agent can act across monday and HubSpot in one workflow." Availability is currently AI Platform only; broader rollout TBC.

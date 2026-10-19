@@ -41,6 +41,12 @@ Pull with `get_board_items_page` on board `18411697232`:
   (Release Status).
 - If unfamiliar with the board, run `get_board_info` first — the label sets above can
   shift.
+- The board may be visible on only one of several connected monday MCP servers. If
+  `get_board_info`/`get_board_items_page` returns "not found", try the other monday
+  MCP connection before reporting the source as unavailable.
+- Cross-check `Release Status` against the Summary/Source text. If the summary says
+  "in progress"/"coming" but the status says "Released", report it as **unverified**,
+  not released.
 
 ### 2. Slack — catches anything not yet logged on the board
 
@@ -48,6 +54,8 @@ Reuse the channel logic from `monday-ai-suggester`/`monday-scaling-watch`: searc
 `slack_search_public_and_private` scoped to the same date window, across
 `#ask-vibe-ai`, `#ask-ai-agents`, `#ai-agents-product-updates`, `#ai-workflow-group`,
 `#monday-platform-notifications`, `#cco-enablement-updates`. Run queries in parallel.
+`#monday-platform-notifications` is often only empty bot (sphera) posts — if every
+result has no text, treat it as "no usable content" and don't spend more calls on it.
 Treat this as a supplement — skip anything that's clearly already captured on the board
 (same release, same week) to avoid duplicate items in the digest.
 
@@ -77,6 +85,10 @@ Rank, don't just list:
 
 ## Output — one digest, short
 
+Anything from Slack/Q&A that isn't confirmed by a primary source (board item, docs,
+release announcement) goes under **Unverified / Slack signals**, never under
+"Most relevant" as fact.
+
 ```
 # Weekly pulse — [date range]
 
@@ -104,8 +116,10 @@ findings into the toolkit's own reference files so other skills stay current
 without Basti ever asking. This is the whole point of doing this automatically —
 he shouldn't have to remember to paste findings anywhere.
 
-Write into Basti's local clone of the `sebseegy/plugin` GitHub repo — currently
-`/Users/sebastianse/Desktop/Git/plugin/bastis-service-toolkit`
+Write into Basti's local clone of the `sebseegy/plugin` GitHub repo — last seen at
+`/Users/sebastianse/Desktop/Sebastian Seegy /Git/plugin/bastis-service-toolkit`
+(older runs recorded `Desktop/Git/plugin` and `Documents/GitHub/plugin`; none of these
+is guaranteed)
 (the marketplace the live plugin installs from). The old `sebastianseegy/Plugins`
 repo and the Desktop `skills copy` folder are retired — never write there.
 Resolve the path by locating the connected folder rather than assuming this exact
@@ -146,7 +160,11 @@ For each file:
 1. Read the current file (create it with a short header explaining its purpose and the "newest first, fed by weekly-pulse" convention if it doesn't exist yet — see any of the existing changelog.md files in this toolkit for the header format to match).
 2. Write a new dated section for this run's window (e.g. "## 2026-09-01 to 2026-09-07"), formatted like the existing entries in that file (source links included).
 3. Insert the new section **right after the header/intro paragraph, before all previous entries** — newest first.
-4. Only write to a given file if this run actually found something relevant to it. Don't create empty or "nothing new" sections — that's noise. If nothing relevant landed for a skill this week, skip writing to its changelog entirely.
+4. **SKILL.md drift check:** if a new entry contradicts or removes a limitation stated
+   in a skill's SKILL.md body (e.g. a "can't do X" that now can), do not edit the
+   SKILL.md automatically — add a line to the digest: "SKILL.md edit needed: <skill> —
+   <what changed>".
+5. Only write to a given file if this run actually found something relevant to it. Don't create empty or "nothing new" sections — that's noise. If nothing relevant landed for a skill this week, skip writing to its changelog entirely.
 
 If the workspace folder isn't connected/writable in a given run (e.g. a scheduled
 run before Basti has connected it), skip this step silently — don't fail the

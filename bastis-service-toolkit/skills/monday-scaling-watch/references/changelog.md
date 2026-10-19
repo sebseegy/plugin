@@ -7,6 +7,17 @@ about for a short window after they happen, fed automatically by
 fast — check current status before repeating a claim from this file if it's
 more than a few weeks old.
 
+## 2026-10-12 to 2026-10-19
+
+- **⚠️ Agent credit display discrepancy (fix in progress)** — My Agents view under-counted credits (one ID key after mid-cycle backend switch); Admin view correct.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13285463155)
+- **⚠️ Notetaker MEDDICC/BANT template summaries in wrong language** — caused by a recent deploy; fix identified, not live.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13285463176)
+- **⚠️ Vibe builder source-sync** — Editor missing /src/generated folders though live app fine; DoW route.
+  Source: Slack #ask-vibe-ai (2026-10-16)
+- **⚠️ Agent CTA buttons mismatch reply text** — under investigation.
+  Source: Slack #ask-ai-agents (2026-10-19)
+
 ## 2026-09-17 to 2026-09-24
 
 - **✅ RESOLVED (Sep 23): AI Agents item view permissions bug** — The bug that

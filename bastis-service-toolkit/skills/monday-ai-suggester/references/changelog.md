@@ -5,6 +5,24 @@ automatically by `weekly-pulse` each time it runs. This skill still pulls
 fresh data every time it runs (Step 2 in SKILL.md) — this log is a
 quick-start baseline, not a replacement for that pull.
 
+## 2026-10-12 to 2026-10-19
+
+**Agents**
+- Governance (admin sharing), delete items + viewing restrictions, workspace knowledge, Brain item/Slack filters, external API trigger, Messenger, Phone v2 (IL/US only), org templates, DocuSign MCP. Detail: `../monday-agents/references/changelog.md`. SharePoint/OneDrive unverified.
+
+**Sidekick**
+- Mentions picker at 100%; orchestration across Vibe/Agents/Workflows is internal only. Detail: `../monday-sidekick/references/changelog.md`.
+
+**AI in Automations**
+- Get Webhook Data, Categorize with AI, block search by intent. Detail: `../monday-workflow-architect/references/changelog.md`.
+
+**Vibe**
+- No new releases; Q&A signals only. See `../monday-vibe/references/changelog.md`.
+
+**General AI**
+- Notetaker MEDDICC/BANT template language bug (fix pending); dark-mode email fix shipped; CRM AI Suggestions Permissions at 100%.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13285463176, https://monday.monday.com/boards/18411697232/pulses/13319893858)
+
 ## 2026-09-21 to 2026-09-28
 
 **Agents**

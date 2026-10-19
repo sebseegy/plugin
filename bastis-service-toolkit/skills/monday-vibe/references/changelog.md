@@ -6,6 +6,23 @@ covers what weekly-pulse has caught so far, so still confirm anything
 stakes-sensitive against support.monday.com and Slack per the main skill
 instructions.
 
+## 2026-10-12 to 2026-10-19
+
+No new Vibe releases on the board this week. Q&A confirmed in #ask-vibe-ai:
+
+- **Cross-account transfer** — Use the public template link (builder chevron → Create public template link), choose whether to include connected boards. The cross-account copier does not carry Vibe apps. Enterprise has limitations on generating the link.
+  Source: Slack #ask-vibe-ai (2026-10-19)
+- **Enterprise permissions** — "Create or edit Vibe apps" and "Publish vibe apps" are role permissions under Administration → AI governance → AI permissions; non-publishers use Publish → Request to publish. Apps use the viewer's own board permissions, so viewers need access to every connected board.
+  Source: Slack #ask-vibe-ai (2026-10-15/18)
+- **External APIs** — API-key auth only (no OAuth), 1 credit per call, BYOM via API integration. No way yet to restrict who can connect external APIs per user; Vibe team is discussing integration permissions.
+  Source: Slack #ask-vibe-ai (2026-10-15/16)
+- **Performance on large boards** — Cache board data in local storage, use aggregation API, ask Vibe (Opus, effort "max") to optimize slow actions. If all apps are slow, suspect platform.
+  Source: Slack #ask-vibe-ai (2026-10-16/17)
+- **⚠️ Bug:** Builder lost /src/generated folders while the live version works — route via DoW; user should not prompt or restore versions meanwhile.
+  Source: Slack #ask-vibe-ai (2026-10-16)
+- **Unconfirmed:** Vibe app as subitem view (flagged to Amichay Even Chen); Vibe trial extensions go through Business Lounge.
+  Source: Slack #ask-vibe-ai (2026-10-16)
+
 ## 2026-09-21 to 2026-09-28
 
 - **ENT-readiness — unconfirmed signal** — Internal stakeholder (Gal Amid Hahn) referenced Vibe becoming "ENT ready" as "big news to make our deals happen" (Sep 22, #ask-vibe-ai). No specific feature announced. Watch the channel for follow-up. Also noted: Amichay Even Chen said a data issue was removed temporarily (Sep 25) with a fix not expected before end of year.

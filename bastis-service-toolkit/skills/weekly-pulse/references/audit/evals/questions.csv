@@ -1,0 +1,16 @@
+id,question,skill_under_test,claims,answer_key,answer_key_source,status
+Q01,"Our Enterprise client wants agents on boards with item-level view permissions. Will agents see restricted items?",monday-ai-advisor,C027,,,needs_key
+Q02,"If a Vibe build prompt fails, do we lose credits?",monday-vibe,C004;C005,,,needs_key
+Q03,"Can our users with viewer seats open a Vibe app?",monday-vibe,C002;C003,,,needs_key
+Q04,"Can a Pro account buy the 25-app Vibe package and give guests access?",monday-vibe-builder,C012;C014,,,needs_key
+Q05,"Can a monday workflow be triggered by an external system's webhook?",monday-workflow-architect,C018,,,needs_key
+Q06,"Can one classic automation route by category and priority to different people?",monday-workflow-architect,C015,,,needs_key
+Q07,"Can an agent watch a Google Drive folder for new files?",monday-agents,C023,,,needs_key
+Q08,"Can agents call people on the phone for our EMEA client?",monday-agents,C022,,,needs_key
+Q09,"How many boards can one Vibe app connect to?",monday-vibe,C007,,,needs_key
+Q10,"Can the client restrict which users connect Vibe to external APIs?",monday-vibe,C032,,,needs_key
+Q11,"What is the item limit per board on Enterprise?",monday-scaling-watch,C034,,,needs_key
+Q12,"Can admins control how agents are shared across the org?",aitp-advisor,C027,,,needs_key
+Q13,"Where do I configure an agent's persona and knowledge in the builder?",monday-agents,C021,,,needs_key
+Q14,"Can a workflow classify incoming emails with AI and branch on the result?",monday-workflow-architect,C018,,,needs_key
+Q15,"Can Sidekick send email from multiple Gmail accounts?",monday-sidekick,C026,,,needs_key

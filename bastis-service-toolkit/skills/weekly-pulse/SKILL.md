@@ -1,179 +1,88 @@
 ---
 name: weekly-pulse
 description: >-
-  Basti's personal weekly digest of what's new on monday.com, pulled live from
-  the ICs Product Updates board, Slack, and monday-all. Use when Basti asks
-  "what's new this week", "run my pulse", "weekly digest", "what did I miss",
-  "product update digest", or "catch me up on monday.com" — and automatically
-  once a week via the scheduled task set up alongside this skill. Filters and
-  ranks everything through his lens: Enterprise EMEA delivery + AITP/AI
-  Champion work. Not for one-off "is X still true" checks on a specific
-  limit or feature (use monday-scaling-watch / monday-ai-advisor for that) —
-  this is the broad, recurring sweep.
+  Basti's weekly claim audit of the toolkit. Re-verifies the load-bearing claims in
+  the monday AI and platform skills against primary sources (API schema, MCP tool
+  lists, support docs, owner announcements), logs changes, queues unresolved
+  questions for named owners, proposes SKILL.md patches for approval, and produces a
+  short review. Use when Basti asks "run my pulse", "weekly review", "what's new /
+  what did I miss", "audit the skills", "are the skills current" - and automatically
+  once a week via the scheduled task. Lens: Enterprise EMEA delivery + AITP / AI
+  Champion work. Not for one-off "is X still true" checks (use monday-scaling-watch /
+  monday-ai-advisor).
 ---
 
-# Weekly pulse
+# Weekly pulse = weekly claim audit
 
-Basti's own freshness engine. The stock `services-toolkit` skills (`monday-scaling-watch`,
-`monday-ai-suggester`) check Slack and a couple of AI-only boards on demand. This skill is
-broader and recurring: every run (manual or scheduled) it sweeps three sources, filters for
-what actually matters to an Enterprise EMEA Implementation Consultant who is also the
-Delivery org's AI Champion, and produces one short digest.
+The goal is not a news digest. It is: **every capability, limitation, pricing or credit
+claim the skills rely on is either verified against a primary source this week, or
+visibly flagged as unverified.** News is a by-product.
 
-## Sources — pull all three every run
+State lives in `references/audit/` (read its `README.md` first): `claims.csv` ledger,
+`sources.md` registry + grading, `queue.md`, `snapshots/`, `proposed/`, `evals/`.
+Helper: `scripts/audit.py` (`due`, `rotate`, `diff`, `evals`; run with `python3 -I`).
 
-### 1. ICs Product Updates board (primary — structured, already IC-curated)
+## Source grades (what may change what)
 
-This is a monday.com board maintained by the ICs Product Updates team (workspace
-**15557960**, board **18411697232**, name "Product Updates") that logs every product
-release relevant to Implementation Consultants, tagged and ready to filter. There is also
-a Vibe app view of the same board (object id `18413653333`, app-feature id `21100584`,
-reachable at `https://monday.monday.com/misc/vibe/full-page-app/object?object-id=18413653333&app-feature-id=21100584`)
-— same data, nicer to browse, no need to hit it separately for this skill.
+| Grade | Source | May change a SKILL.md body? |
+|---|---|---|
+| A | Schema introspection, MCP tool lists, behaviour seen live | Yes |
+| B | Owner announcement, official docs (with modified date), Release Board card status | Yes |
+| C | Human digest: ICs Product Updates board (18411697232), shipping summaries | No - index + changelog line |
+| D | Q&A / chat: #ask-*, #ai-workflow-group (many answers are bot-written) | No - changelog line, marked unverified |
 
-Pull with `get_board_items_page` on board `18411697232`:
-- Filter `date_mm32grnh` (Date) to the window since the last run (default: last 7 days;
-  widen to 14 if it's the first run or the last run failed).
-- Include columns: `color_mm32e1eb` (Status), `color_mm32a8vv` (IC Relevance),
-  `long_text_mm32vqr` (Use Cases), `color_mm32td82` (Source Type), `link_mm329g2s`
-  (Source Link), `long_text_mm32d2hf` (Summary), `dropdown_mm32s9p3` (Platform Area),
-  `color_mm32rdj5` (Product), `dropdown_mm32k9yh` (AI Type), `dropdown_mm327517`
-  (Release Status).
-- If unfamiliar with the board, run `get_board_info` first — the label sets above can
-  shift.
-- The board may be visible on only one of several connected monday MCP servers. If
-  `get_board_info`/`get_board_items_page` returns "not found", try the other monday
-  MCP connection before reporting the source as unavailable.
-- Cross-check `Release Status` against the Summary/Source text. If the summary says
-  "in progress"/"coming" but the status says "Released", report it as **unverified**,
-  not released.
+Reversing a stated limitation needs two independent A/B sources. Full registry, URLs
+and named owners: `references/audit/sources.md`.
 
-### 2. Slack — catches anything not yet logged on the board
+## Procedure
 
-Reuse the channel logic from `monday-ai-suggester`/`monday-scaling-watch`: search
-`slack_search_public_and_private` scoped to the same date window, across
-`#ask-vibe-ai`, `#ask-ai-agents`, `#ai-agents-product-updates`, `#ai-workflow-group`,
-`#monday-platform-notifications`, `#cco-enablement-updates`. Run queries in parallel.
-`#monday-platform-notifications` is often only empty bot (sphera) posts — if every
-result has no text, treat it as "no usable content" and don't spend more calls on it.
-Treat this as a supplement — skip anything that's clearly already captured on the board
-(same release, same week) to avoid duplicate items in the digest.
+### 1. Snapshot raw sources and diff (A/B)
+For each snapshot name: `audit.py rotate <name>`, write the fresh snapshot, `audit.py diff <name>`.
+- `monday-schema.json` - `get_graphql_schema` / `get_type_details` (normalized, sorted).
+- `monday-mcp-tools.txt` - tool names + parameter names of the monday MCP (diff = real capability change, e.g. new `vibe_*` / workflow tools).
+- `support-<topic>.txt` - text + modified date of the support articles listed in `sources.md` (agents, Vibe, Workflow Builder, Sidekick, credits).
+Only the **changes** drive the rest of the run. First run writes baselines and reports "baseline".
 
-### 3. monday-all — company-wide announcements
+### 2. Use digests only as an index
+Read the Product Updates board (window: since last run, default 7 days; board `18411697232`, date column `date_mm32grnh`; columns in `get_board_info`), owner posts in #ai-agents-product-updates / #cco-enablement-updates, News and KB in monday-all - to learn **what to go and check**. For every item that could touch a claim, find the primary source (B or better) before logging it as fact. Cross-check the board's Release Status against its own source text; if they disagree, status = `UNVERIFIED-CONFLICT`.
+- The board may exist on only one of several connected monday MCP servers - if "not found", try the other.
+- #monday-platform-notifications is often empty bot posts; skip if no text.
 
-Call `news_list_articles` for anything published in the window, and `knowledge_search`
-for AITP / AI Transformation Package / Enterprise-EMEA-relevant terms if News is thin.
-This catches org-wide comms (pricing changes, packaging, enablement) that wouldn't show
-up on a product-tracking board.
+### 3. Reconcile the ledger
+Run `audit.py due <today>`. For each row returned (expired, never verified, contradicted, stale, conflicted):
+1. Look for a grade A/B source. If found: set `status=verified`, `grade`, `verified_on=<today>`, and a new `expires` (A/B: today+14d; time-bound claims: their natural date).
+2. If the claim changed: update the row, and write a proposed patch in `references/audit/proposed/<skill>.md` (what line, old, new, evidence, grade). **Never edit a SKILL.md body automatically.**
+3. If no A/B source: leave `unverified`, add or refresh the entry in `queue.md` naming the owner from `sources.md`.
+4. Add new rows for new load-bearing claims found this week. Prioritise "can't / not supported" claims and look actively for removals, deprecations and expired time-bound statements.
+Priority order: CONTRADICTED > time-bound past expiry > "can't" claims > pricing/credits > capabilities.
 
-If any source errors or comes back empty, say so in one line under "Sources pulled" and
-proceed with the rest — never block the digest on one bad source.
+### 4. Changelogs (auto, grade-tagged)
+For each skill with relevant changes, insert a dated section right after the intro of `<skill>/references/changelog.md` (newest first; match existing format; include source links and the grade). Files: monday-vibe, monday-agents, monday-sidekick, monday-ai-columns, monday-ai-advisor, monday-ai-suggester, aitp-advisor, monday-workflow-architect, monday-formulas, monday-solution-architecture, monday-scoping, monday-scaling-watch (platform bugs/incidents only). Skip skills with nothing new - no "nothing new" sections. Grade C/D items go in marked **unverified**.
 
-## Filtering — Basti's lens, not a generic feed
+### 5. Verify before finishing
+- Run `audit.py evals`. Run the questions that have answer keys against the skills (ask each question using only the skill text + its changelog) and report pass/fail per question. Answer keys come from grade A/B sources, written by Basti or cited from a primary source - **never write or edit an answer key yourself**, and never grade a question you can't check against its key. Questions without keys are reported as `needs_key`.
+- Re-read `claims.csv`: no row may be `verified` without `verified_on` and `expires`.
 
-Rank, don't just list:
-
-1. **AITP / AI relevant** (`AI Type` set, or `dropdown_mm32s9p3` = AI, or Slack/News
-   about Agents, Sidekick, Vibe, AI Workflows) — surface first, he's the Delivery org's
-   AI Champion.
-2. **Enterprise-relevant** (`Product` = All/WM/CRM at Enterprise tier, scaling/governance
-   items, permissions/admin) — surface second.
-3. **IC Relevance = "Most Relevant"** items from the board outrank "Good to know" ones
-   regardless of category — that tag is already a human judgment call, trust it.
-4. Drop anything tagged `IC Relevance = Good to know` AND unrelated to AI/Enterprise
-   unless the digest would otherwise be very short.
-
-## Output — one digest, short
-
-Anything from Slack/Q&A that isn't confirmed by a primary source (board item, docs,
-release announcement) goes under **Unverified / Slack signals**, never under
-"Most relevant" as fact.
-
+### 6. Output - the review (2 pages max)
 ```
-# Weekly pulse — [date range]
+# Weekly review - [date range]
+Coverage: schema [diff/no change/baseline] · MCP tools [..] · support articles [n changed] · digests used as index [board N items, Slack channels with usable text, monday-all] · sources failed [..]
 
-Sources pulled: Product Updates board (N items, [date range]) · Slack ([channels that
-returned data]) · monday-all ([News/KB hits, or "nothing new"]).
-
-## Most relevant
-- **[Title]** — [Release Status]. [One-line why it matters, EMEA/AITP angle if there
-  is one]. [Source link]
-
-## Also worth knowing
-- **[Title]** — [one line]. [Source link]
-
-## Nothing new this week
-[Only if genuinely nothing worth surfacing — say so plainly, don't pad.]
+## Claims changed or reversed (with evidence + grade)
+## Proposed SKILL.md patches awaiting your approval  (file paths in references/audit/proposed/)
+## Needs an owner (queue.md): [claim -> owner -> question]
+## Expired / contradicted claims still open
+## Eval results: X/Y with keys passed · N need keys
+## Also shipped (graded)  - ranked: AI/AITP first, then Enterprise, then IC Relevance "Most Relevant"
 ```
+Keep it scannable; no filler; no forced client-relevance. If a source errored or was empty, say so in one line and continue.
 
-Keep it scannable — this is a five-minute Monday read, not a report. No corporate fluff.
-If an item's client relevance is a stretch, don't force it — just state what shipped.
+## Hard rules
+- Read-only against monday and Slack. Never post, message, or edit boards.
+- Write only inside the plugin repo (locate the connected `sebseegy/plugin` folder; it moves - last seen at `Desktop/Sebastian Seegy /Git/plugin/bastis-service-toolkit`). If not connected, say so and stop writing; the review in chat is still the deliverable.
+- No git commands (sandbox leaves lock files). If anything was written, bump the patch version in `.claude-plugin/plugin.json` (minor if the method changed) and end with: "Written, version bumped to X.Y.Z - commit & push from Terminal, then update the marketplace in Cowork."
+- SKILL.md bodies change only after Basti approves a patch from `proposed/`.
+- Unattended runs: never ask questions; unresolved items go to `queue.md`.
 
-## Feeding the toolkit — update skill changelogs automatically
-
-After producing the digest (every run, manual or scheduled), write the relevant
-findings into the toolkit's own reference files so other skills stay current
-without Basti ever asking. This is the whole point of doing this automatically —
-he shouldn't have to remember to paste findings anywhere.
-
-Write into Basti's local clone of the `sebseegy/plugin` GitHub repo — last seen at
-`/Users/sebastianse/Desktop/Sebastian Seegy /Git/plugin/bastis-service-toolkit`
-(older runs recorded `Desktop/Git/plugin` and `Documents/GitHub/plugin`; none of these
-is guaranteed)
-(the marketplace the live plugin installs from). The old `sebastianseegy/Plugins`
-repo and the Desktop `skills copy` folder are retired — never write there.
-Resolve the path by locating the connected folder rather than assuming this exact
-string, since it may move; if the `plugin` repo folder isn't connected, say so and
-ask Basti to connect it instead of writing anywhere else.
-
-After writing the changelogs, also bump the patch version in
-`bastis-service-toolkit/.claude-plugin/plugin.json`. Read the current
-`version` string, increment the patch number (e.g. `1.2.0` → `1.2.1`), and write
-it back. Plugin updates compare version strings, so without a bump they report
-"already at latest" even with new content.
-
-Do NOT run git from this environment — the sandbox leaves `.git/*.lock` files it
-can't delete, which blocks Basti's next commit. End the digest with a one-line
-note when changelog writes and a version bump happened, e.g. "Changelog updates
-written, version bumped to X.Y.Z — commit & push from Terminal, then Update the
-marketplace in Cowork." Skip the note on runs where nothing was written.
-
-Write to the following files — one entry per skill, only when this run found something relevant to it:
-
-**AI feature skills**
-- `monday-vibe/references/changelog.md` — Vibe feature releases, capability changes, confirmed bugs.
-- `monday-agents/references/changelog.md` — Agent feature releases (new triggers, skills, org-sharing, reliability), confirmed bugs. For cross-cutting platform incidents see monday-scaling-watch.
-- `monday-sidekick/references/changelog.md` — Sidekick feature releases (new surfaces, capabilities, configuration changes).
-- `monday-ai-columns/references/changelog.md` — AI column and AI automation-action releases (new types, new actions, prompt-builder changes).
-- `monday-ai-advisor/references/changelog.md` — releases that change how a feature should be explained or pitched; written so it folds into a client explanation.
-- `monday-ai-suggester/references/changelog.md` — summary by bucket (Agents / Sidekick / Vibe / AI in Automations / General AI) of what shipped; cross-reference monday-vibe, monday-agents, monday-sidekick changelogs rather than duplicating full detail.
-- `aitp-advisor/references/changelog.md` — new AI features expanding AITP scope, methodology updates, org/governance capabilities relevant to AITP, commercial changes affecting AITP scoping.
-
-**Platform and build skills**
-- `monday-workflow-architect/references/changelog.md` — new Workflow Builder blocks, trigger types, automation recipes, limit changes, confirmed bugs in workflow execution.
-- `monday-formulas/references/changelog.md` — new formula functions, changes to existing function behaviour, expanded column-type support (e.g. formula on mirror/connect-boards), confirmed bugs.
-- `monday-solution-architecture/references/changelog.md` — new column types, board-level features (hidden columns, import changes, view improvements), cross-board capabilities, integration releases, anything that lifts previous architectural workarounds.
-- `monday-scoping/references/changelog.md` — pricing/packaging changes, new add-ons or credit models, import row-cap changes affecting migration effort, new tiers or bundling.
-- `monday-scaling-watch/references/changelog.md` — platform bugs/incidents only (not feature releases, not scaling-limit changes — those still go through monday-scaling-watch's own update flow into `limits.md`/`scaling-themes.md` when confirmed).
-
-For each file:
-1. Read the current file (create it with a short header explaining its purpose and the "newest first, fed by weekly-pulse" convention if it doesn't exist yet — see any of the existing changelog.md files in this toolkit for the header format to match).
-2. Write a new dated section for this run's window (e.g. "## 2026-09-01 to 2026-09-07"), formatted like the existing entries in that file (source links included).
-3. Insert the new section **right after the header/intro paragraph, before all previous entries** — newest first.
-4. **SKILL.md drift check:** if a new entry contradicts or removes a limitation stated
-   in a skill's SKILL.md body (e.g. a "can't do X" that now can), do not edit the
-   SKILL.md automatically — add a line to the digest: "SKILL.md edit needed: <skill> —
-   <what changed>".
-5. Only write to a given file if this run actually found something relevant to it. Don't create empty or "nothing new" sections — that's noise. If nothing relevant landed for a skill this week, skip writing to its changelog entirely.
-
-If the workspace folder isn't connected/writable in a given run (e.g. a scheduled
-run before Basti has connected it), skip this step silently — don't fail the
-whole digest over it. The chat digest is still the primary deliverable; the
-changelog writes are a bonus that keeps the rest of the toolkit fresh.
-
-## Scheduling
-
-This skill is designed to run on a recurring weekly schedule (a scheduled task calling
-this skill, e.g. Monday mornings) so Basti never has to remember to run it. On a
-scheduled run, skip any conversational framing and go straight to the digest —
-then do the changelog updates above before finishing.
+## Cadence
+Weekly full run (Mondays). Steps 1 and the `due` check are cheap and can also run ad hoc before client calls: "audit the skills for <topic>".

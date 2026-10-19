@@ -1,0 +1,38 @@
+id,skill,claim,type,where_stated,status,grade,verified_on,expires,primary_source_to_check,notes
+C001,monday-vibe,"Vibe DB ~10 GB / ~1M items, 256 KB/record, no images, left-pane apps from ~26 Aug 2026",limit,SKILL.md L159; changelog,unverified,D,,,support.monday.com Vibe best-practices (34101891654034); Vibe FAQ doc 18397954182,Source was an Aug deck via Company Brain
+C002,monday-vibe,"Viewer seats cannot open Vibe apps",limit,SKILL.md L160; vibe-builder L106,unverified,D,,,Vibe FAQ doc 18397954182; owner Amichay Even Chen,
+C003,monday-vibe-builder,"Viewer read-only access for Growth expected ~end Oct 2026 (unconfirmed)",time-bound,vibe-builder L106,unverified,D,,2026-10-31,Vibe FAQ; #ask-vibe-ai owner post,EXPIRES IN 12 DAYS - decide: shipped / slipped / drop
+C004,monday-vibe,"Failed prompts still charge credits",pricing,SKILL.md L161,CONTRADICTED,D,,,Vibe FAQ credits section,Directly contradicts C005
+C005,monday-vibe-builder,"Failed prompts are free; stopped prompts charged up to the stop",pricing,vibe-builder L148,CONTRADICTED,D,,,Vibe FAQ credits section,Directly contradicts C004
+C006,monday-vibe,"In-app AI actions ~8 credits per run",pricing,SKILL.md L161,unverified,D,,,Vibe FAQ; changelog says image gen <10 and API call 1 credit,Possibly inconsistent per action type
+C007,monday-vibe-builder,"Boards per app: 5 on 10-app package, 20 on Growth; cannot be raised",limit,vibe-builder L96,unverified,C,,,support article 34101891654034 (says up to 20 boards),Support article may now state 20 unconditionally
+C008,monday-vibe-builder,"Public fullstack apps: all server-side writes fail 403 (as of 2026-09-24)",bug,vibe-builder L108,unverified,D,,2026-10-24,Vibe FAQ / DoW status,Time-bound bug - verify fixed
+C009,monday-vibe-builder,"monday.monday cannot host public apps and does not meter credits",limit,vibe-builder L45,unverified,D,,,Vibe FAQ,19 Oct: agents on monday.monday show 0 credits - different product but check
+C010,monday-vibe,"Board reads cap ~500 items/call; ~3s per 100 items",limit,SKILL.md L114; vibe-builder L117,unverified,D,,,Vibe FAQ; hands-on test,
+C011,monday-vibe,"CSV/XLSX import 5,000 rows to a new board",limit,SKILL.md L158,unverified,D,,,support.monday.com import article,
+C012,monday-vibe-builder,"Enterprise 50+ seats must buy Growth (25-app) package; 10-app bucket unavailable",pricing,vibe-builder L100; changelog,unverified,D,,,Packaging SOT monday.monday.com/docs/18411930424,
+C013,monday-vibe-builder,"Vibe cannot create automations; MCP cannot read/edit app code",capability,vibe-builder L11/L279,unverified,D,,,monday MCP tool schemas (vibe_*),Machine-checkable via tool-list diff
+C014,monday-vibe,"Public apps: Growth only, one shared password, 15-min sessions, new left-pane apps only",capability,changelog 2026-09-07,unverified,D,,,Vibe FAQ,
+C015,monday-workflow-architect,"Classic automations: one condition, AND-only, no If/Else",limit,SKILL.md L40,unverified,C,,,support.monday.com automations docs,
+C016,monday-workflow-architect,"Classic automations: no HTTP/MCP block, only native Slack/Gmail/Outlook/Teams integrations",limit,SKILL.md L55,unverified,C,,,support docs; automation catalog via MCP list_automations,
+C017,monday-workflow-architect,"Classic automations: no delay blocks; 'item deleted'/'subitem archived'/'board created'/'user joins' triggers only in Workflow Builder",limit,SKILL.md L62,unverified,C,,,support docs; MCP workflow expert,
+C018,monday-workflow-architect,"Workflow Builder lacks 'person assigned' trigger, single board + single trigger type per workflow, no mirror columns as inputs",limit,SKILL.md L145-151,unverified,C,,,monday MCP invoke_workflow_expert; blocks catalog,Webhook-in block (Oct) does NOT change classic limits but check trigger-type claim
+C019,monday-workflow-architect,"Active workflows capped per plan tier; can create more but not activate without add-on",limit,SKILL.md L158,unverified,C,,,references/limits-and-failure-modes.md; support docs,
+C020,monday-workflow-architect,"Classic automations are live-only, no draft mode",limit,SKILL.md L67,unverified,C,,,Hands-on,
+C021,monday-agents,"Builder vocabulary: Instructions, Brain, Activity tab",ui,SKILL.md,STALE,C,2026-10-19,,#cco-enablement-updates 2026-10-19,Now Identity / Profile / Activity tab removed (Slack owner post)
+C022,monday-agents,"Agent Phone beta available in Israel and US only",time-bound,changelog 2026-10-12,unverified,D,,2026-11-15,#ai-agents-product-updates owner post (Tsemach Lifshitz 15 Oct),'More countries soon'
+C023,monday-agents,"SharePoint/OneDrive agent capability released",capability,changelog 2026-10-12,UNVERIFIED-CONFLICT,C,,,2026 Release Board card 13210452165,Board says Released; source card says in progress
+C024,monday-agents,"Workspace-level knowledge: customer rollout from ~week of 19 Oct",time-bound,changelog 2026-10-12,unverified,D,,2026-11-02,#ask-ai-agents shipping summary,
+C025,monday-agents,"HubSpot integration GA on monday AI Platform only",capability,changelog 2026-09-28,unverified,D,,,#cco-enablement-updates,
+C026,monday-ai-advisor,"Sidekick email sends fail with multiple Gmail accounts (active 2026-09-24)",bug,changelog 2026-09-24,unverified,D,,2026-10-24,Slack C09MKR01006 thread; owner,Time-bound bug - verify fixed
+C027,monday-ai-advisor,"Agents on item-view-restricted boards: bug fixed 2026-09-23 (column view full; item view gradual)",bug,changelog 2026-09-24,unverified,D,,,#ai-agents-product-updates owner post,Oct 12-19 board adds 'agents respect viewing restrictions' - consistent but gradual status unknown
+C028,monday-ai-advisor,"Org Agent Directory Enterprise Phase 2 (sensitive) from 5 Oct",time-bound,changelog 2026-09-24,unverified,D,,2026-10-05,#ai-agents-product-updates owner post,Date has passed - verify landed
+C029,monday-ai-advisor,"EWM Enterprise Reports beta ~45 clients by Oct, GA Jan 2027",time-bound,changelog 2026-09-24,unverified,C,,2027-01-31,2026 Release Board 11335680519,
+C030,monday-ai-advisor,"Formula on mirror/connect-board columns: EU/AU/IL 100%, US 50%",time-bound,changelog 2026-09-24,unverified,D,,2026-10-31,Slack C08TEAL3RV0 owner post; hands-on,Rollout % goes stale quickly
+C031,monday-vibe,"Vibe pricing: 10 apps $100/mo, 25 apps $250/mo; AI credits add-on no longer grants free app slots",pricing,changelog 2026-09-14,unverified,D,,,Packaging SOT 18411930424,
+C032,monday-vibe,"Vibe external APIs: API-key only, no OAuth, 1 credit per call",capability,changelog 2026-08-31; 2026-10-12,unverified,D,,,Vibe FAQ,OAuth marked 'not yet' - re-check
+C033,monday-vibe,"Vibe multiple editors 'coming in 1-2 weeks' (31 Aug)",time-bound,changelog 2026-09-07,unverified,D,,2026-09-21,Vibe FAQ; owner post,Expired - shipped or slipped?
+C034,monday-scaling-watch,"Items per board 10,000 non-ENT; 100,000 CRM Pro and all ENT (moves)",limit,limits.md,unverified,C,,2026-10-02,Live: monday support / Slack mondayDB scale thread,Snapshot dated 2026-06-02 from Guru card (Guru content now in monday-all); 'moves' items stale after 120 days
+C035,monday-scaling-watch,"Other numeric limits in limits.md (56 lines with figures)",limit,limits.md,unverified,C,,2026-10-02,Same,Expand to one row per figure on first audit run
+C036,monday-sidekick,"Sidekick reachable via Telegram/WhatsApp",capability,changelog 2026-08-31,unverified,D,,,Slack C09MKR01006 owner post,
+C037,monday-solution-architecture,"Manage Views per-view access: Alpha, 25 accounts, planned all tiers",time-bound,changelog 2026-10-19,unverified,C,,2026-11-30,Captain's Log board 183946105 item 13319786805,

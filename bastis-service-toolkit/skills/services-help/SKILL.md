@@ -106,4 +106,4 @@ missing, say what you couldn't read.
 **Craft — Client work:** `monday-scoping`, `monday-discovery`, `call-prep`,
 `meeting-followup`
 **Craft — Solutions & docs:** `monday-solution-architect` (research + propose a fix for a client's product question), `presentation-design`, `morph-ppt`, `officecli`
-**Working style:** `debrief`, `karpathy-guidelines`
+**Working style:** `debrief`, `karpathy-guidelines`, `deepen` (rewrite a task prompt to expert depth, then run it)

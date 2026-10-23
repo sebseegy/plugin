@@ -1,4 +1,4 @@
-# Query templates (paste into the CLIENT playground)
+# Query templates (paste into the CLIENT playground, or save as numbered `.graphql` files and use `devcenter.py run`)
 
 Replace `<WS>`, `<BOARD>`, `<BOARD_IDS>` and so on. Every read here selects structure and item values only.
 Don't add `users { email }` dumps or item updates/comments unless the task needs them. Keep the

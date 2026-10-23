@@ -11,6 +11,35 @@ here, search monday-all (`knowledge_search`) or ask `invoke_process_planner`
 before telling a client something isn't possible — and if this file's KB
 source and a live check disagree, trust the more recent one and say so.
 
+## Live check 2026-10-23 (grade A: `invoke_process_planner`, which plans only with blocks that exist)
+
+Probed with an 11-item capability prompt. The planner is a catalog view, not proof
+a block is enabled on a given account: greyed-out blocks (e.g. "If text matches"
+on an Enterprise service trial) and flag-gated blocks were reported the same week.
+
+| Capability | Block / trigger name returned | Kind | Note |
+|---|---|---|---|
+| Start from external webhook | When a webhook is received (22970502) | trigger | New vs Aug catalog |
+| Run on demand | When Triggered Manually (23620468) | trigger | New vs Aug catalog |
+| Person assigned | When person assigned (11499195) | trigger | **Aug note said absent - now present** |
+| AI classify + route | Categorize with AI (124966296) then if text matches (123665702, switch) or Smart condition (13698140) | action + switch / condition | Categorize does not branch by itself |
+| Delay | Wait for duration (10380177) | wait-trigger | routes triggered / ttlExpired |
+| Loop | loopEnter / loopExit pair over a collection (e.g. Get all items 121568574) | loop markers | Not a standalone block; planner leaves the body to be configured by hand |
+| REST call | HTTP request and API call (15947681) | action | |
+| MCP | Run any MCP action (22629575); also Run any monday / GitHub / Slack action (MCP) | action | |
+| Custom code | Code (23557427) | action | |
+| Human approval | Send email and wait for response - Gmail (123941304), Outlook (124356611) | wait-trigger | **No Slack block**; Aug note says Teams has one (not re-checked) |
+| Two boards, one workflow | Not possible | - | One root trigger, one board |
+
+Block kinds and outgoing routes: trigger (direct) · wait-trigger (triggered, ttlExpired) ·
+action (direct) · condition (satisfied, unsatisfied) · search (found, notFound) ·
+switch (1, 2, ..., default) · loopEnter/loopExit (direct).
+
+Not tested in this pass: mirror-column inputs, Find Matching Item behaviour (see
+the Oct field reports in the limits file), SharePoint/OneDrive/Salesforce search
+blocks, plan-tier availability. Support docs (2026-10-23): a workflow may have up to
+200 blocks; "Get item from a previous step", Delay, Loop and subitem blocks are listed.
+
 ## Triggers
 
 - When status changes to something / from something to something
@@ -23,9 +52,10 @@ source and a live check disagree, trust the more recent one and say so.
 - When button clicked
 - When item moves to group / when item moves to board
 
-**Missing vs. classic Automations (live, Aug 2026):** "When person is
-assigned" exists as an Automations trigger but was confirmed **not present**
-in Workflow Builder as of this scan. Don't assume Workflow Builder's trigger
+**Missing vs. classic Automations (live, Aug 2026; UPDATED 2026-10-23: the
+process planner now lists "When person assigned" as a Workflow Builder trigger -
+re-check per account):** "When person is assigned" exists as an Automations
+trigger and was confirmed **not present** in Workflow Builder as of the Aug scan. Don't assume Workflow Builder's trigger
 list is a strict superset of Automations' — check both catalogs for the
 specific trigger a design needs.
 

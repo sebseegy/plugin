@@ -1,26 +1,50 @@
 ---
 name: monday-dev-center
-description: Work on a live monday.com CLIENT account through the Developer Center (API playground). Claude writes read-only analysis queries and staged mutations, the consultant runs them in the client's playground and pastes the responses back (into JSON files Claude creates, or in chat), and Claude analyses and implements from there. Always starts from the client's project .md context and a fresh analysis of the account and workspace. Use this whenever Basti works on a client's live monday account, workspace or boards: audits, gap analysis, cleanup, column/view/dashboard/automation changes, "check the boards", "run this in the client playground", "give me the query", pasted monday API JSON, or client board/workspace IDs with a request to change something. Also covers what the monday API can and can't do (and what must be done in the UI). Not for copying a build from a source account to a client (monday-build-replicator does that).
+description: Work on a live monday.com CLIENT account through the Developer Center (API playground). Claude writes read-only analysis queries and staged mutations, the consultant runs them in the client's playground and pastes the responses back (into JSON files Claude creates, or in chat), and Claude analyses and implements from there. Always starts from the client's project .md context and a fresh analysis of the account and workspace. Use this whenever Basti works on a client's live monday account, workspace or boards: audits, gap analysis, cleanup, column/view/dashboard/automation changes, "check the boards", "run this in the client playground", "give me the query", pasted monday API JSON, or client board/workspace IDs with a request to change something. Also covers what the monday API can and can't do (and what must be done in the UI). If Basti has an API token for the client, it can also execute the queries through a local script he runs (API-key mode). Not for copying a build from a source account to a client (monday-build-replicator does that).
 ---
 
 # monday Developer Center (client account work)
 
 This setup exists to keep Claude **outside the client's monday account**, and it holds even when that's slower:
-- Claude writes GraphQL. Basti runs it in the client's API playground and brings the response back.
+- Claude writes GraphQL. Basti runs it (in the client's API playground, or with `devcenter.py run` when he has an API key) and the response comes back as a file.
 - No token ever reaches Claude, and nothing runs against the client without Basti seeing it first.
 - The responses Basti brings back are the only client data Claude sees. So reads select structure and the columns that are needed, not everything.
 
 Roles:
 - **Claude:** analyst and author. Reads the client context, writes queries and mutations, analyses the responses, writes the docs, and gives UI steps where the API can't do the job.
-- **Basti:** the hands. Runs every query and mutation in the **CLIENT** playground, does the UI steps, and makes the business decisions.
+- **Basti:** the hands. Runs every query and mutation (playground or his own terminal), does the UI steps, and makes the business decisions.
+
+## Two ways to run queries
+**Mode A, playground (default).** Basti pastes each query into the client's Developer Center playground and brings the response back. Use this unless he says he has a token for the client.
+
+**Mode B, API key (optional).** For when Basti has an API token for the client and wants to skip the copy/paste. Claude still never touches the account: Claude writes numbered `.graphql` files and the exact command, **Basti runs it in his own terminal**, the script saves each response as a numbered `.json` file, and Claude analyses those files exactly as in Mode A. If the client's admin has restricted API tokens, fall back to Mode A.
+
+One-time setup per client (Basti, in his terminal; the token never goes in chat or a file). `read -s` keeps it off the screen and out of shell history:
+```bash
+read -s MONDAY_TOKEN_<CLIENT>; export MONDAY_TOKEN_<CLIENT>     # CLIENT = name uppercased, non-alphanumerics -> _
+```
+Run (same `<skill-dir>/scripts/devcenter.py` as below):
+```bash
+python3 $S whoami --client <client> --expect-slug <slug>
+python3 $S run deliverables/dev-center/<date>/01_structure.graphql deliverables/dev-center/<date>/02_items.graphql --client <client> --expect-slug <slug>
+python3 $S run <part>.graphql --client <client> --expect-slug <slug> --apply     # writes only, after review
+```
+What the script enforces, and why:
+- **Identity first, every run.** The token's account slug must equal `--expect-slug` (from the client `meta.json`), or nothing is sent. Running in the wrong account is the mistake that really hurts.
+- **Read-only by default.** Any file containing the word `mutation` is refused unless `--apply` is passed, and then Basti must type the account slug to confirm. Non-interactive shells can't apply. This keeps guardrail 4: deletes still need evidence and an explicit OK.
+- **Never overwrites a response.** An existing non-empty `01_x.json` makes the script write `01_x_run2.json` instead.
+- **Quiet and clean.** It prints status and error counts, not response bodies. `runs.log` (next to the responses) records file, query hash, API version, HTTP status and error count: no token, no client data.
+- API version defaults to `dev`; override with `--api-version`. Paginated reads (`cursor`) still need a follow-up query.
+
+Claude's job in Mode B: write `.graphql` files in the same order and risk split as Mode A (reads together; each mutation part in its own file), give the command, wait for "done", then read the `.json` files. Claude never asks for the token and never runs `whoami` or `run` itself, even if a token happens to exist in its sandbox environment.
 
 Before writing any query or mutation, read `references/api-capabilities.md`. It holds the field-tested limits: what works via the API, what has to be UI, and what each error message means. Copyable queries are in `references/query-templates.md`.
 
 When a native block can't do the job (dynamic target board, setting a connect column from a computed id, creating and linking items across boards), read `references/workflow-code-blocks.md`. It has the Workflow Builder Code block pattern that calls the monday API without a token, a code template, and the gotchas that cost test rounds. Claude writes the code; Basti pastes it in and tests.
 
 ## Guardrails (and why)
-1. **No tokens in chat.** If Basti pastes one, say so plainly and tell him to regenerate it in the Developer Center. A token never goes into files, examples or memory.
-2. **Claude never calls the client account.** This includes monday MCP connectors and the browser. MCP schema tools (`get_graphql_schema`, `get_type_details`, widget schema) are fine, because the schema is the same for every account and reading it isn't client data. MCP **data** tools are not. If Basti sends a client board link, ask for a query result or a screenshot instead.
+1. **No tokens in chat.** If Basti pastes one, say so plainly and tell him to regenerate it in the Developer Center. A token never goes into files, examples or memory. In Mode B it lives only in Basti's shell environment.
+2. **Claude never calls the client account.** This includes monday MCP connectors, the browser and `devcenter.py run`/`whoami` (Basti runs those). MCP schema tools (`get_graphql_schema`, `get_type_details`, widget schema) are fine, because the schema is the same for every account and reading it isn't client data. MCP **data** tools are not. If Basti sends a client board link, ask for a query result or a screenshot instead.
 3. **Analysis before change.** Structure, labels and automations drift between sessions, because the client edits things too. A mutation written from memory can hit a renamed column or a re-shuffled label id.
 4. **Deletes need evidence and an explicit OK.** Show the fill rate or reference check, then wait for a yes on that specific delete.
    - Prefer reversible steps: archive before delete, hide before delete, additive before in-place.
@@ -55,7 +79,7 @@ From these, write a 5-line context note for yourself:
 Ask Basti only for what's missing: usually the workspace id (from the URL `/workspaces/<id>`), and whether the playground is already on API version **dev**.
 
 ### Step 1: Identity check
-Give query 0 from the templates. It confirms `me.account.slug` and the workspace name match the context. If it shows a different account, stop; the one mistake that really hurts is running in the wrong playground.
+Give query 0 from the templates. It confirms `me.account.slug` and the workspace name match the context. If it shows a different account, stop; the one mistake that really hurts is running in the wrong playground. In Mode B, use `devcenter.py whoami` instead; `run` repeats the same check before every batch.
 
 ### Step 2: Analysis
 Match the depth of the analysis to the task:
@@ -66,7 +90,7 @@ Match the depth of the analysis to the task:
 | A change to a board | Structure (1) of the workspace + targeted reads of that board, plus automations (3) if stages, dates or people are involved |
 | A single small fix in a session where structure was read today | Targeted read (4) of the affected columns/items |
 
-**How the responses come back:**
+**How the responses come back** (Mode B: `run` writes them for you, so skip the paste-into-file step and just wait for "done"):
 - **Large responses** (structure, items, automations, anything longer than about a page): create empty files and link them:
   ```bash
   python3 <skill-dir>/scripts/devcenter.py new deliverables/dev-center/<YYYY-MM-DD>/01_structure.json deliverables/dev-center/<YYYY-MM-DD>/02_items_pipeline.json

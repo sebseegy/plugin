@@ -16,6 +16,7 @@ starting point than guessing.
 - [AI credit consumption](#ai-credit-consumption-last-confirmed)
 - [Failure modes worth designing around](#failure-modes-worth-designing-around) — disabling vs. silent vs. archiving, creator single-point-of-failure, same-trigger race condition
 - [Classic Automations — additional live-verified limitations](#classic-automations--additional-live-verified-limitations-aug-2026-ask-automation-builder) — builder-UI regressions, template carryover, ownership friction, audit gaps
+- [Field reports, Oct 2026](#field-reports-7-23-oct-2026-ask-ai-workflows) — archive-deactivation, Find Matching Item, code failures, unstable blocks, feature gaps
 - [Where to check for movement](#where-to-check-for-movement)
 
 ## Active workflow limits by tier
@@ -351,6 +352,82 @@ cleanly.
   the raw URL, ignoring whatever default display text was configured on the
   column — a small but concrete gotcha worth testing for if a design touches
   Link columns via automation.
+
+## Field reports, 7-23 Oct 2026 (`#ask-ai-workflows`)
+
+Source grade D: questions and reports from colleagues in the channel; most had **no
+answer from the owning team** as of 2026-10-23. Treat each as a *reported* risk to
+test for, not confirmed product behaviour. Dates are the report dates.
+
+**Failure modes**
+- **Archiving the trigger item deactivates the whole workflow** (9, 13, 16 Oct;
+  reproduced on two accounts and a strategic account, Zendesk 5242889). The archived
+  item makes the API return USER_UNAUTHORIZED, the engine treats it as fatal, and the
+  notification email wrongly blames "a change in board permissions". A *deleted* item
+  only fails that run. Open question: a way to fail only the run.
+- **Find Matching Item** (17 Oct): reportedly compares the value against the item
+  *Name* column instead of the selected column, and still returns an item ID when no
+  match exists. Guard any flow that branches on its output.
+- **Code block** (14 Oct, partner IC): intermittent "Code block must return an object",
+  JSON decode errors and "took too long to respond" (30 min) on code that returned a
+  valid dict and completed in ~3 min; run output tab empty. The 300 s code limit is
+  cited by the reporter. Possible runner/callback incident, not confirmed.
+- **Chat-to-Build conditions** (8 Oct): generated multi-branch dropdown condition had
+  9 cases for 7 options and failed every run; rebuilt by hand it worked.
+- **Email "send and wait for response"** (21 Oct): email arrived with blank values.
+  **Outlook send** (8 Oct): "missing fields" error with all fields filled; suggested
+  fix is re-authorising the connection. Outlook connect for tenants without admin
+  consent for Mail.ReadWrite is being fixed behind a flag (PR 12667, 16 Oct).
+- **Workflow creator deactivated then reinstated** (7 Oct): automations show active
+  but do not run again - consistent with the creator single-point-of-failure above.
+- **Duplicating a board with 123 automations produced 25** (13 Oct): backend 429
+  concurrency limit on permission checks; DoW suggested.
+- **Loop**: adding an action at the *end* of a loop errors while mid-loop inserts work
+  (12 Oct); no loop-in-loop (21 Oct question, no answer).
+- **Dynamic "today"** (14 Oct): "set date to today" stamped the next calendar day for
+  APAC users with profile timezone EST; which clock is evaluated is unanswered.
+- **MCP/lite-builder incident** (14 Oct from ~08:49 UTC): `create_automation` failing
+  with a BadRequest on the builder's model schema; resolution not seen in channel.
+- **Connect-boards columns**: a two-way connect from many duplicated project subitem
+  boards adds one reflection column per project to a central board, which caps at 60
+  connect columns (13 Oct). In workflows a Connect Boards column is not mappable for
+  some users, and for others writes item IDs instead of values (18 Oct).
+
+**Limits and governance**
+- Enterprise 250-active-workflow cap is enforced: Tel Aviv Municipality at 250/250
+  (347 total) requested a ~3-month **non-enforcement whitelist** (12 Oct). Exceptions
+  exist but are manual and temporary.
+- No per-user/board/workspace control of **automation quota** consumption (12 Oct, one
+  user exhausted an account's quota). Unanswered. Ownership of automation limits and
+  platform-metering is being discussed for a move to product-metering (23 Oct), so
+  limit values may change.
+- AI-workflow credit rates (14 Oct): unanswered in channel; see AI credit section.
+- A workflow can have up to 200 blocks (support doc).
+
+**Blocks unavailable, unstable or removed**
+- **SharePoint** workflow action blocks reappearing but account connections failing
+  (13 Oct); **OneDrive upload** block no longer present (9 Oct); **Salesforce "Search
+  objects"** action reported gone (13 Oct; HTTP Request suggested as fallback).
+  Contrast: the board logs "agents interact with SharePoint/OneDrive" as released while
+  its own source card says in progress - treat all Microsoft file blocks as unstable.
+- Blocks greyed out on an Enterprise service trial (e.g. "If text matches", 20 Oct) and
+  a portfolio-specific action needing enablement on an Enterprise account (23 Oct):
+  likely feature flags; ask via DoW with the account ID.
+- "Trigger agent" action does not list all agents (7 Oct).
+- Sidekick in the builder: picks blocks but cannot populate their variables (7 Oct),
+  cannot edit subitems (14 Oct), and its popup is blank and not collapsible when AI is
+  disabled (16 Oct).
+- Platform API 2026-10 removes legacy User fields (`is_guest`, `photo_thumb_small`)
+  that the builder's mention picker queries without an API-Version header; once an
+  account's default moves to 2026-10 the people list in the picker may break (20 Oct,
+  Platform API bot; owner response not seen). Verify when the default ramps.
+
+**Feature gaps asked for (no confirmed plan)**
+Human-in-the-loop with a required comment and with Teams/native notifications (20 Oct);
+dynamic target board for create/update (19 Oct; workaround is a code node or long
+if/else chains); URL-label option in Change column value (20 Oct); a block to move a
+board to a folder (13 Oct); "get all" dropdown values (12 Oct); sandbox/staging test
+mode (8 Oct); a list of all connected mailboxes for cleanup (9 Oct).
 
 ## Where to check for movement
 

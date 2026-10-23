@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 """Helpers for the monday Developer Center (API playground) workflow.
 
-Claude never calls the client API. The consultant runs queries in the client's
-playground and saves the responses as JSON files. These commands turn those
-files into analysis Claude can reason over.
+Claude never calls the client API and never holds the token. Two ways to get
+responses into JSON files:
+  A. the consultant runs queries in the client's playground and pastes responses;
+  B. the consultant runs `run` below in his OWN terminal with his API token in the
+     shell environment (never in chat, never in a file).
+Either way, the other commands turn those files into analysis Claude can reason over.
 
 Commands
+  whoami     (mode B) check the token reaches the expected client account; sends nothing else
+  run        (mode B) execute .graphql files against the client API and save each response
+             as a numbered JSON file. Read-only unless --apply (+ typed confirmation).
   new        create empty JSON files for the consultant to paste responses into
   usage      per-board, per-column fill rates (+ top values) from structure + items responses
   diff       structure diff between two structure responses (before / after)
@@ -16,10 +22,15 @@ All commands are stdlib-only and read-only on the input files.
 """
 import argparse
 import collections
+import datetime
+import hashlib
 import json
 import os
 import re
 import sys
+import time
+import urllib.error
+import urllib.request
 
 
 # ---------- loading ----------
@@ -311,9 +322,129 @@ def cmd_automations(args):
                             print(f"    label {i} = {labels[str(i)]}")
 
 
+# ---------- run / whoami (API-key mode; the consultant runs these, Claude never does) ----------
+
+API_URL = "https://api.monday.com/v2"
+ID_QUERY = "query { me { name account { slug name } } }"
+
+
+def _token(client):
+    """Token comes only from the shell environment: MONDAY_TOKEN_<CLIENT>, else MONDAY_API_TOKEN.
+    Never from a CLI argument, a file or chat, so it can't land in history, logs or the repo."""
+    names = []
+    if client:
+        names.append("MONDAY_TOKEN_" + re.sub(r"[^A-Za-z0-9]+", "_", client).strip("_").upper())
+    names.append("MONDAY_API_TOKEN")
+    for n in names:
+        v = os.environ.get(n, "").strip()
+        if v:
+            return v
+    sys.exit("No token in the environment. In your own terminal run (the token never goes in chat or a file):\n"
+             f"  read -s {names[0]}; export {names[0]}")
+
+
+def _post(token, query, version):
+    req = urllib.request.Request(
+        API_URL, data=json.dumps({"query": query}).encode(),
+        headers={"Authorization": token, "API-Version": version,
+                 "Content-Type": "application/json", "User-Agent": "devcenter-skill/1"})
+    for attempt in (1, 2):
+        try:
+            with urllib.request.urlopen(req, timeout=90) as r:
+                return r.status, json.loads(r.read().decode() or "{}")
+        except urllib.error.HTTPError as e:
+            body = e.read().decode(errors="replace")
+            if e.code == 429 and attempt == 1:
+                wait = int(e.headers.get("Retry-After", "10") or 10)
+                print(f"rate limited, retrying once in {wait}s", file=sys.stderr)
+                time.sleep(wait)
+                continue
+            try:
+                return e.code, json.loads(body)
+            except ValueError:
+                return e.code, {"errors": [{"message": body[:300]}]}
+        except urllib.error.URLError as e:
+            sys.exit(f"Network error: {e.reason}")
+
+
+def _has_mutation(q):
+    # deliberately blunt: the word anywhere (even in a comment) counts, so a write can never slip through as a read
+    return re.search(r"\bmutation\b", q, re.I) is not None
+
+
+def _identity(token, version, expect):
+    status, d = _post(token, ID_QUERY, version)
+    me = ((d.get("data") or {}).get("me")) or {}
+    slug = (me.get("account") or {}).get("slug")
+    if status != 200 or not slug:
+        sys.exit(f"Identity check failed (HTTP {status}): {[e.get('message') for e in d.get('errors', [])] or d}")
+    if slug != expect:
+        sys.exit(f"WRONG ACCOUNT: token belongs to '{slug}', expected '{expect}'. Nothing was run.")
+    print(f"identity ok: {slug} ({me['account'].get('name')})")
+    return slug
+
+
+def cmd_whoami(args):
+    _identity(_token(args.client), args.api_version, args.expect_slug)
+
+
+def cmd_run(args):
+    token = _token(args.client)
+    queries = []
+    for p in args.files:
+        with open(p) as f:
+            q = f.read()
+        if not q.strip():
+            sys.exit(f"{p} is empty")
+        queries.append((p, q))
+    mutating = [(p, q) for p, q in queries if _has_mutation(q)]
+    if mutating and not args.apply:
+        sys.exit("REFUSED: these files contain a write and this run is read-only. Nothing was sent.\n  "
+                 + "\n  ".join(p for p, _ in mutating)
+                 + "\nReview them, then re-run with --apply if you approve.")
+    slug = _identity(token, args.api_version, args.expect_slug)
+    if mutating:
+        if not sys.stdin.isatty():
+            sys.exit("Writes need an interactive confirmation; run this from your terminal. Nothing was sent.")
+        for p, q in mutating:
+            print(f"\n=== WRITE: {p} ===\n{q.strip()}\n")
+        if input(f"Type the account slug '{slug}' to apply these writes to the LIVE account: ").strip() != slug:
+            sys.exit("Not confirmed. Nothing was sent.")
+    failed = False
+    for p, q in queries:
+        status, d = _post(token, q, args.api_version)
+        out_dir = args.out_dir or os.path.dirname(os.path.abspath(p))
+        os.makedirs(out_dir, exist_ok=True)
+        stem = os.path.splitext(os.path.basename(p))[0]
+        out, n = os.path.join(out_dir, stem + ".json"), 1
+        while os.path.exists(out) and os.path.getsize(out) > 0:       # never overwrite a response
+            n += 1
+            out = os.path.join(out_dir, f"{stem}_run{n}.json")
+        with open(out, "w") as f:
+            json.dump(d, f, indent=2)
+        errs = d.get("errors") or []
+        failed = failed or status != 200 or bool(errs)
+        print(f"{'OK ' if status == 200 and not errs else 'ERR'} {p} -> {out} (HTTP {status}, {len(errs)} errors)")
+        for e in errs[:5]:
+            print("   ", e.get("message"))
+        with open(os.path.join(out_dir, "runs.log"), "a") as lg:       # no token, no response data
+            lg.write(json.dumps({"ts": datetime.datetime.now().isoformat(timespec="seconds"), "file": p,
+                                 "query_sha1": hashlib.sha1(q.encode()).hexdigest()[:10],
+                                 "api_version": args.api_version, "account": slug,
+                                 "write": _has_mutation(q), "http": status, "errors": len(errs),
+                                 "saved_as": out}) + "\n")
+    sys.exit(1 if failed else 0)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
+    s = sub.add_parser("whoami"); s.add_argument("--client"); s.add_argument("--expect-slug", required=True)
+    s.add_argument("--api-version", default="dev"); s.set_defaults(fn=cmd_whoami)
+    s = sub.add_parser("run"); s.add_argument("files", nargs="+"); s.add_argument("--client")
+    s.add_argument("--expect-slug", required=True); s.add_argument("--api-version", default="dev")
+    s.add_argument("--out-dir"); s.add_argument("--apply", action="store_true", help="allow files containing writes (asks for typed confirmation)")
+    s.set_defaults(fn=cmd_run)
     s = sub.add_parser("new"); s.add_argument("paths", nargs="+"); s.add_argument("--force", action="store_true")
     s.set_defaults(fn=cmd_new)
     s = sub.add_parser("usage"); s.add_argument("--structure", required=True); s.add_argument("--items", nargs="+", required=True)

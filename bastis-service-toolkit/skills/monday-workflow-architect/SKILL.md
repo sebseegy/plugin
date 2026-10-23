@@ -145,10 +145,12 @@ The tree above treats Workflow Builder as the more-capable engine, which is
 true for the five hard limitations it's built around. But it isn't a strict
 upgrade in every dimension: as of a live verification pass (see
 `references/blocks-catalog.md` and `references/limits-and-failure-modes.md`),
-Workflow Builder is **missing** at least one trigger classic Automations has
-("when person is assigned"), cannot trigger from more than one board or more
-than one trigger type per workflow, and cannot use mirror columns as inputs at
-all. In the rare case where the specific thing a client needs is exactly one
+Workflow Builder **was missing** a trigger classic Automations has ("when
+person is assigned" - confirmed absent Aug 2026; the process planner lists it
+as available on 2026-10-23, so re-check per account), still cannot trigger from
+more than one board or more than one trigger type per workflow (re-confirmed
+2026-10-23), and could not use mirror columns as inputs at all (Aug 2026, not
+re-checked). In the rare case where the specific thing a client needs is exactly one
 of those gaps and nothing else in the process forces Workflow Builder, check
 the actual current catalog for both engines before committing to a verdict —
 don't assume the more powerful-sounding engine can always do what the simpler
@@ -200,8 +202,11 @@ workflows actually live under before reasoning about which ceiling applies.
    condition, search the web, call an agent) draw AI credits per block execution
    each time the flow runs that block; MCP blocks and HTTP Request blocks reach
    systems outside monday and need their own auth/consent set up before the flow
-   can go live. These are build dependencies — call them out in the design so
-   nobody discovers them at go-live.
+   can go live. The same applies to the **webhook trigger** ("When a webhook is
+   received"), the **Code** block (field reports of intermittent "Code block must
+   return an object" / timeout failures, Oct 2026) and **email "send and wait for
+   response"** blocks (Gmail/Outlook only; no Slack equivalent). These are build
+   dependencies — call them out in the design so nobody discovers them at go-live.
 6. **Design defensively against how flows silently break** (see
    `references/limits-and-failure-modes.md` for the fuller, live-verified
    list): a block that references a column, board, group, or connection that
@@ -214,10 +219,22 @@ workflows actually live under before reasoning about which ceiling applies.
    (e.g. "if column is empty" checks) around anything that assumes a
    referenced resource still exists, and for anything business-critical,
    recommend building under a dedicated service/admin account as the creator
-   rather than a named individual, decided before build.
+   rather than a named individual, decided before build. Also design for
+   **archiving of the trigger item mid-run**: field reports (Oct 2026, three
+   reporters, one strategic account) say the engine treats the resulting
+   USER_UNAUTHORIZED as fatal and **deactivates the whole workflow**, with a
+   misleading "board permissions changed" email. Unresolved as of 2026-10-23 -
+   warn clients whose users archive items quickly, and add guards or monitoring.
 7. **Plan the test path.** Build and iterate in draft, validate structurally
    before publishing, and run at least one real trigger event before activating
-   for a client — don't publish straight from the design doc untested.
+   for a client — don't publish straight from the design doc untested. The MCP
+   also exposes run-once tools (see Part B) for exercising a draft. For flows
+   produced by Chat-to-Build/Sidekick, **check every generated condition against
+   the real options**: a multi-branch dropdown condition was reported generated
+   with phantom cases (9 vs 7 options) that failed every run while still
+   publishing cleanly; rebuilding the condition by hand fixed it (Oct 2026,
+   unconfirmed fix). Also note there is no sandbox/staging mode - testing at
+   volume means a duplicate (which is a separate workflow).
 8. **Write the design** using the template below.
 
 ## Design output template (Markdown)
@@ -299,11 +316,26 @@ rather than improvising queries against them.
   `get_automation_statistics` are your post-launch debugging tools when a client
   reports "it didn't fire."
 
+## Also exposed on the connected MCP (not covered above - read each tool's schema first)
+
+- **`run_workflow_once`**, **`get_workflow_run_once_status`**,
+  **`stop_workflow_run_once`**, **`get_run_once_trigger_entities`** - test-run
+  tooling for a workflow (the last one presumably lists candidate trigger
+  entities). Behaviour not yet verified by this skill; confirm the schema and do
+  a harmless dry test before relying on it, and never run against live client
+  data without approval.
+- **`get_workflow_editor_link`** - creates the editor link plus a short handoff
+  summary shown in the editor chat. Call it after the last change to a workflow;
+  never hand-write a workflow URL.
+- The developer docs also list an "Update Workflow" MCP tool that this connection
+  did not expose (2026-10-23); `invoke_workflow_expert` is what edits workflows here.
+
 ## Build sequence
 
 `create_workflow` → `invoke_workflow_expert` (repeat per block, checking in) →
-`validate_workflow` → fix any issues → `validate_workflow` again → **explicit
-approval** → `publish_workflow`.
+`validate_workflow` → fix any issues → `validate_workflow` again → optionally a
+run-once test on the draft → **explicit approval** → `publish_workflow` →
+`get_workflow_editor_link` for the handoff.
 
 ## Don't confuse with: CRM sequences
 
@@ -329,6 +361,10 @@ through this skill's tools.
   via `monday-scaling-watch` before any client-facing commitment. This area has
   changed at least once already since the reference was written and is explicitly
   still evolving.
+- Several items in `references/limits-and-failure-modes.md` come from questions in
+  the internal `#ask-ai-workflows` channel (grade D: colleagues' reports, many
+  unanswered). They are marked *reported*; treat them as risks to test for, not as
+  confirmed product behaviour, and say so to clients.
 - If `validate_workflow` or `invoke_workflow_expert` surfaces a limitation you
   didn't expect, report it plainly rather than working around it silently — a
   workaround that isn't disclosed becomes your problem at go-live, not theirs.
@@ -354,9 +390,12 @@ continuum and both live here.
 ## Reference files
 
 - `references/blocks-catalog.md` — the current trigger / condition / action /
-  column-behavior catalog for Workflow Builder. Read it when you need to know
+  column-behavior catalog for Workflow Builder, including the 2026-10-23 live
+  check from the process planner (exact block names, kinds and routes). Read it when you need to know
   exactly which blocks exist before designing or before telling a client
   something isn't possible.
 - `references/limits-and-failure-modes.md` — plan-tier active-workflow limits,
   add-on pricing, AI credit consumption, and the internal-knowledge failure modes
-  (silent disabling, error-rate auto-disable) referenced above.
+  (silent disabling, error-rate auto-disable) referenced above, plus the Oct 2026
+  field-report section (archive-deactivation, Find Matching Item, code-block
+  failures, unavailable/unstable blocks, feature gaps).

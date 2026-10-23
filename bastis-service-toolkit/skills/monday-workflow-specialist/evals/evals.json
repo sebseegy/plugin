@@ -1,0 +1,8 @@
+{"skill_name":"monday-workflow-specialist","evals":[
+{"id":1,"prompt":"Client has 12 near-identical project boards and wants one workflow that posts an update on the parent item when a subitem hits Done. How do we build it?","expected_output":"Webhook trigger with sender recipes, Code parse (ok/relevant split), Code act via monday API, no Authorization header, Notify on ok=false, service user, evidence grades, hands build to monday-workflow-architect."},
+{"id":2,"prompt":"Can the Code block call our external CRM API?","expected_output":"No: egress only to monday API and MCP server (B). Use HTTP request block, or Run any MCP action. States GET/POST/PUT limit and Credentials-app token."},
+{"id":3,"prompt":"My workflow with a Code block says 'Code block must return an object'.","expected_output":"Check return dict, string outputs, output size over 4KB incident 13-14 Oct (fixed), rerun, return pointer instead of payload."},
+{"id":4,"prompt":"Do we have a secrets vault for the HTTP request block?","expected_output":"Corrects old claim: token from Credentials app referenced as {{token}} header; visibility to editors unverified."},
+{"id":5,"prompt":"Which monday AI column should I use to classify tickets?","expected_output":"Should NOT trigger; route to monday-ai-columns."},
+{"id":6,"prompt":"Should this be a classic automation or a workflow?","expected_output":"Should route to monday-workflow-architect Gate 0, not answer deeply here."}
+]}

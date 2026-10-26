@@ -6,6 +6,35 @@ trigger types, skill additions, org-sharing changes, and any confirmed bugs or
 regressions that affect agent reliability. For platform incidents that cut across
 all AI features, see `../monday-scaling-watch/references/changelog.md`.
 
+## 2026-10-19 to 2026-10-26
+
+All items below are board/Slack digests (grade C/D, unverified); confirm against the Release Board before promising.
+
+- **Agent ownership transfer — released (admins, all tiers)** — Admin can reassign an agent when its builder leaves; no rebuild. Use in handover and governance answers.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13378639779); Release Board (https://monday.monday.com/boards/8084368131/pulses/13184172117)
+- **Agent wait and resume — released** — Agents pause mid-task and resume later (follow-ups, reminders, watchdog patterns).
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13333622285)
+- **Entity Retrieval sub-agent — UNVERIFIED-CONFLICT** — Board (25 Oct): Beta, 25% of users, heading to GA, ~5% task-completion gain in early evals. Slack #ai-agents-product-updates (20 Oct): "in GR/GA". Do not state GA until the Release Board confirms.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13378709497); Slack #ai-agents-product-updates (2026-10-20)
+- **Standalone Brains — UNVERIFIED-CONFLICT** — Board status "Released", but text says available on account 5 (monday.monday.com) only; Slack and Google Drive sources planned. Treat as not GA. One brain, many agents; upload PDF/TXT/MD.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13343952326)
+- **Workspace as agent context — GA** — 779 agents created with workspace context in week one (~2% of new agents). context.md launch mentioned; no in-product discovery yet.
+  Source: Slack #ai-agents-product-updates (2026-10-22)
+- **Interactive UI in chat — Beta (limited)** — Kanban, workload heatmaps, board item lists, daily briefings; 45+ components and canvas mode announced as next.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13333625840)
+- **Dedicated Slack apps per agent — Beta, rolling out.**
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13333623381)
+- **Suggestion Carousel — released, all tiers** — Board-open suggestions of relevant agents; helps adoption.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13382888531)
+- **HubSpot tools for agents — released** — Search/update deals, contacts, companies, tickets; create tasks, notes, segments; human approval required.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13354734126)
+- **Reliability** — Tool-request schema validation and smarter rate-limit rejections live; streamed thinking restored to 100% after a bug.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13378680340, https://monday.monday.com/boards/18411697232/pulses/13354738041)
+- **Known bug (fix rolled out 25 Oct, post-check pending)** — `update_assets_on_item` reported success while the file column stayed empty; two Ignite flags at 100%.
+  Source: Slack #ask-ai-agents (2026-10-25)
+- **Not supported** — Dynamic per-item/per-board agent access is not supported and not on the roadmap (workspace-level access is the answer).
+  Source: Slack #ask-ai-agents (2026-10-26)
+
 ## 2026-10-12 to 2026-10-19
 
 - **Agent admin governance for sharing — released** — Admins control how agents are shared org-wide (approval flows, visibility). Extends the 22 Sep Org Directory work; treat as one governance story, not two features.

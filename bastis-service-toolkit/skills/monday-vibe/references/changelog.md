@@ -6,6 +6,17 @@ covers what weekly-pulse has caught so far, so still confirm anything
 stakes-sensitive against support.monday.com and Slack per the main skill
 instructions.
 
+## 2026-10-19 to 2026-10-26
+
+Board/Slack digests (grade C/D, unverified).
+
+- **Full version history — Beta, gradual release (all tiers)** — Unlimited versions with revert, was last 3. Web and mobile.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13382888530)
+- **Vibe API calls excluded from the account daily API limit** — Reported released 20 Oct. CONTRADICTS `monday-vibe-builder/references/data-layer.md` (daily limit 25k on Enterprise). Needs an A/B source before that file changes; queued.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13333623929)
+- **Open Q&A with no answer seen** — WCAG/VPAT coverage, custom domain for public apps, viewer role and guest access, credit estimation (chat cannot estimate), `create_timeline_item` blocked from a Vibe app, published vs auto-save.
+  Source: Slack #ask-vibe-ai (2026-10-20 to 25)
+
 ## 2026-10-12 to 2026-10-19
 
 No new Vibe releases on the board this week. Q&A confirmed in #ask-vibe-ai:

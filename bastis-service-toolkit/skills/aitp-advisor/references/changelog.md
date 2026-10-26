@@ -8,6 +8,17 @@ content changes, org-sharing or governance capabilities relevant to AITP
 deployment, and any commercial changes (credit models, add-on pricing) that
 affect AITP scoping conversations.
 
+## 2026-10-19 to 2026-10-26
+
+Board/Slack digests (grade C/D, unverified).
+
+- **Adopt/handover lever** — Agent ownership transfer (admin, all tiers) answers "what happens when the builder leaves".
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13378639779)
+- **Credit scoping** — Per-block credit visibility plus self-serve top-ups (wire 20,000-credit min net-30; card 500 min; 1.5x base rate; expire in cycle). Use for the credit-budget conversation, but confirm numbers first.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13382813999, https://monday.monday.com/boards/18411697232/pulses/13333553160)
+- **Do not scope on** — Standalone Brains (single-account availability) or Entity Retrieval GA until confirmed.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13343952326, https://monday.monday.com/boards/18411697232/pulses/13378709497)
+
 ## 2026-10-12 to 2026-10-19
 
 - **Governance levers for Assess/Align** — Agent admin sharing controls, agents honoring item viewing restrictions, and Brain filters (items + Slack threads) give concrete answers to regulated/Enterprise data-sensitivity objections.

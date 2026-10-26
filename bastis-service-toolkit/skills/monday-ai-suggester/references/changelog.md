@@ -5,6 +5,24 @@ automatically by `weekly-pulse` each time it runs. This skill still pulls
 fresh data every time it runs (Step 2 in SKILL.md) — this log is a
 quick-start baseline, not a replacement for that pull.
 
+## 2026-10-19 to 2026-10-26
+
+Board/Slack digests (grade C/D, unverified).
+
+**Agents**
+- Wait and resume: follow-up, onboarding and watchdog agents.
+- Interactive UI in chat (Beta): daily briefing and workload views.
+- Suggestion Carousel: adoption lever for accounts with many agents.
+- Standalone Brains: shared policy brain across department agents, but not GA (single account).
+- HubSpot tools (approval-gated) for pipeline-review and ticket agents.
+- Ownership transfer for handover; Entity Retrieval for reporting agents (status conflict, see `../monday-agents/references/changelog.md`).
+
+**Credits**
+- Per-block credit visibility and self-serve top-ups; usable in AITP credit-budget conversations. Detail: `../monday-ai-advisor/references/changelog.md`.
+
+**Vibe / Sidekick**
+- Vibe version history (Beta) and Vibe calls excluded from the daily API limit (unverified). Sidekick prompt autocomplete at 10%.
+
 ## 2026-10-12 to 2026-10-19
 
 **Agents**

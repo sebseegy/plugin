@@ -6,6 +6,15 @@ workflow blocks (condition, action, AI, delay, HTTP/MCP), changes to trigger
 types, new automation recipes, changes to automation limits or caps, and
 confirmed bugs or regressions in workflow execution.
 
+## 2026-10-19 to 2026-10-26
+
+- **AI blocks credit consumption visibility — released** — Per-block credits visible in workflows. Revisit the "credit consumption isn't visible per-workflow" line in `limits-and-failure-modes.md` (proposed, not applied) (grade C/D, unverified).
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13382813999)
+- **Block search by intent — released, all tiers.**
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13382888645)
+- **Loop build funnel (internal data, 26 Oct)** — 3,858 workflows added a loop; 51% published, 42% ran successfully. Failures happen while building; start with a list step ("Get all items"), otherwise users delete the loop (grade D).
+  Source: Slack #ai-workflow-group (2026-10-26)
+
 ## 2026-10-20 to 2026-10-23
 
 - **Resolved: "revisit limitations" flag from 12-19 Oct.** Webhook-in (Get Webhook Data / "When a webhook is received") is a Workflow Builder item; it does **not** change the classic-Automation limits. The Workflow Builder claim that changed is the trigger list: **"When person assigned" is now listed** (planner, grade A, 2026-10-23). One root trigger / one board per workflow re-confirmed.

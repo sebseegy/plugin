@@ -5,6 +5,19 @@ automatically by `weekly-pulse` each time it runs. Check this before
 explaining a feature so the explanation reflects current capability, not
 just the static description in SKILL.md.
 
+## 2026-10-19 to 2026-10-26
+
+Board/Slack digests (grade C/D, unverified).
+
+- **"What if the builder leaves?"** — Agent ownership transfer is released for admins on all tiers.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13378639779)
+- **Brain scope** — Standalone Brains (one brain, many agents) are not GA: single-account availability per the board text. Do not pitch to clients yet.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13343952326)
+- **Credits, how to answer** — Self-serve top-ups live: wire (20,000-credit min, net-30), card (500 min, likely moving to 1,000), 1.5x base rate, expire within the billing cycle (moving to fixed 3 months), auto top-up next. Per-block credit consumption is now visible in workflows. Admin view is correct where My Agents under-counts (fix in progress). Numbers come from a Slack product-highlights session; verify before quoting.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13333553160, https://monday.monday.com/boards/18411697232/pulses/13382872844, https://monday.monday.com/boards/18411697232/pulses/13382813999); Slack Monthly Product Highlights session (https://monday.slack.com/archives/C0BQN75SLER/p1792420997192339)
+- **Agent capabilities to mention** — Wait and resume, interactive UI in chat (Beta), HubSpot tools with approval.
+  Source: board (https://monday.monday.com/boards/18411697232/pulses/13333622285, https://monday.monday.com/boards/18411697232/pulses/13333625840, https://monday.monday.com/boards/18411697232/pulses/13354734126)
+
 ## 2026-10-12 to 2026-10-19
 
 - **Agents and sensitive data** — Update the answer: agents respect item viewing restrictions and can now also delete items; Brain filters limit what gets indexed (items, Slack threads). Admin sharing governance is live.

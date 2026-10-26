@@ -22,3 +22,10 @@ Rule: an item leaves this queue only when a grade A/B source answers it. Ask via
 11. **C032 - Vibe external APIs:** support "FAQs and Troubleshooting" (32833743243282) still says "not yet"; board/Slack say released Aug 2026. Is the support article stale? Need its modified date.
 12. **C039 - new:** agents can manage Vibe apps (support 37230283024530). Decide whether monday-agents / vibe-builder should mention it (patch P4).
 13. **Method gap:** monday knowledge tools hide article modified dates, so support text can never reach "fresh" status without a pasted URL for web_fetch. Paste the Vibe support URLs from sources.md into chat once so the scheduled run's first fetch is allowed.
+
+## Added 2026-10-26 (weekly run)
+14. **Vibe daily API limit: still 25k on Enterprise?** Board (20 Oct, SwissAI briefing, grade C) says Vibe API calls are excluded from the account daily API limit. Contradicts `monday-vibe-builder/references/data-layer.md` line 25. Owner: Vibe team (#ask-vibe-ai). Need an A/B source; do not patch data-layer.md until then.
+15. **Entity Retrieval sub-agent: Beta 25% or GA?** Board (25 Oct) says Beta/limited; #ai-agents-product-updates (20 Oct) says GA. Owner: Kangan Malik / agents team.
+16. **Standalone Brains: account 5 only or GA?** Board status "Released" vs text "available on account 5". Owner: agents team.
+17. **Self-serve credit numbers** (wire 20,000 min net-30; card 500 min; 1.5x; expiry) come from a Slack session (grade D). Need the pricing/support page before quoting to clients.
+18. **Proposed patch (not applied):** `monday-workflow-architect/references/limits-and-failure-modes.md` line ~131 says AI credit consumption isn't visible per-workflow; board says per-block visibility released. Needs B source (support article) first.

@@ -26,7 +26,7 @@ Before explaining a feature, check `references/changelog.md` — a dated log of 
 **How it works:** You define a trigger (event, schedule, or another agent), give it skills (actions it can take), and point it at knowledge sources (boards, columns, docs). It runs in the background without anyone clicking anything.
 **Best for:** Repetitive multi-step workflows — routing, triage, status syncing, notifications based on data patterns.
 **Not for:** Tasks that require human judgment, relationship context, or unpredictable logic.
-**Plan tier:** Check current availability — has been rolling out progressively.
+**Plan tier:** Assume Enterprise (default for all clients; never ask). Verify only the rollout status of the specific feature.
 **Client pitch:** "Instead of someone manually checking the board every morning and moving things around, the agent does it automatically. It's like giving your team a new colleague who only does the boring, repetitive stuff."
 
 ---

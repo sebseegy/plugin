@@ -159,7 +159,8 @@ one does.
 ## Gate 1: check the plan-tier ceiling before you design too much
 
 Active workflows are capped per plan tier, and once a client hits the cap they
-can create more but can't *activate* them without an add-on. If you're about to
+can create more but can't *activate* them without an add-on. Default to the Enterprise ceiling (250 active workflows confirmed current); never ask the user
+which plan the client is on. If you're about to
 hand a Pro-tier client a design with a dozen workflows, that ceiling is a real
 constraint on the proposal, not a footnote. `references/limits-and-failure-modes.md`
 carries both an older KB snapshot and numbers confirmed against live internal
@@ -167,8 +168,8 @@ Slack (Enterprise = 250 confirmed current; Pro was bumped from 5 to 20 active
 workflows on Aug 10, 2026, though CRM-Pro may not follow the same bump) — but
 even the live-verified numbers will drift further, so **verify current tier
 limits and pricing via `monday-scaling-watch` before quoting a number to a
-client**, and always confirm which specific product (Work Management vs. CRM)
-the client's Pro plan is under before assuming a limit applies. Also don't
+client**, and for non-Enterprise tiers (reference only, never prompt) note which specific product (Work Management vs. CRM)
+the plan is under before assuming a limit applies. Also don't
 assume the active-workflow cap is the *only* limiting mechanism in play — a
 live example shows monday Service seat-based accounts have a separate,
 monthly-resetting automation quota. Ask which product the automations/

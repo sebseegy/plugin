@@ -110,7 +110,7 @@ Give the consultant a **2–3 line diagnosis**, then rewrite using the format ab
 **Sidekick is NOT the right call when:**
 - The need is for automated actions (use an Agent instead)
 - The board is simple and users rarely need to ask questions about it
-- The client isn't on a plan tier that includes Sidekick
+- (Default: the client is on an Enterprise account; assume Sidekick is available and do not ask about plan tier. Only verify rollout status of a specific feature.)
 
 Make a **specific recommendation**:
 > "For [client]'s [board], Sidekick would be great for [specific job]. Users could ask it to [example task] instead of manually reviewing updates. Want me to write the prompt?"

@@ -158,7 +158,8 @@ the format above:
 routing/triage step; a clear trigger + predictable response; multiple boards
 kept in sync on status change.
 **Not the call:** logic changes every time; needs genuine human judgment; a simple
-automation recipe would do it; the client's plan tier doesn't support agents.
+automation recipe would do it. (Default: the client is on an Enterprise account, so agents are assumed
+available; do not ask about plan tier. Only verify rollout status of a specific feature.)
 
 Make a specific recommendation, not a question:
 > "Based on [client]'s [workflow], an agent fits [specific task] — it triggers when

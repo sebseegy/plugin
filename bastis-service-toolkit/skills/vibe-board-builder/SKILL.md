@@ -19,7 +19,7 @@ relevant section there before asserting a capability to a client.
 
 - **Board ceiling** — plan for **5** connected boards as the safe default. The support
   best-practices article (modified 2026-09-22) says "up to twenty boards at a time"; internal
-  packaging lists 5 by default and 20 on Vibe Growth or Custom/Enterprise. Verify per account
+  packaging lists 5 by default and 20 on Vibe Growth or Custom/Enterprise. Clients are assumed Enterprise (never ask about plan); verify the Vibe package
   before relying on more than 5.
 - **Vibe DB** — private per-app document store; doesn't count against the board ceiling; no
   automation/dashboard surface. Decision order: platform-facts → "Vibe DB vs. monday Boards".

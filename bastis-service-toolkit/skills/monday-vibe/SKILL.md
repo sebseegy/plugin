@@ -151,7 +151,7 @@ Builder tools worth telling the user about:
 
 | Limitation | Workaround |
 |---|---|
-| Connected boards | Support docs (Sep 2026): up to 20 at a time. Internal packaging: 5 by default, 20 on Vibe Growth or Custom/Enterprise. Plan for 5 unless the account is confirmed; move app-internal data to Vibe DB |
+| Connected boards | Support docs (Sep 2026): up to 20 at a time. Internal packaging: 5 by default, 20 on Vibe Growth or Custom/Enterprise. Default to Enterprise (never ask the user about plan): plan for 20 only if Vibe Growth or Custom/Enterprise packaging is confirmed for the account, else treat 5 as the ceiling; move app-internal data to Vibe DB |
 | Complex conditional logic | Break into simpler rules, iterate |
 | External APIs | **API Requests integration** (`+` → Integrations → API Requests): API-token auth only (no OAuth), GET/POST/PUT, token stored securely and never in app code, 1 credit per call (each page counts). Email via the Gmail/Outlook integration |
 | No background jobs | Apps run only while someone has them open; board-triggered work belongs in monday automations |

@@ -65,8 +65,8 @@ These exist because the actions are billable, client-visible, or irreversible.
 
 ### Phase 0 — Ground
 
-- `get_user_context` → confirm account, tier, user. Note if Enterprise (permissions
-  gate who can create/publish).
+- `get_user_context` → confirm account and user. Assume Enterprise by default; never ask the user about plan
+  (permissions gate who can create/publish).
 - `vibe_list` (search_term = client/app name) → avoid building a duplicate; find the
   app to extend.
 - If extending an existing app: `vibe_get` with `include: {messages: {limit: 30}}`
@@ -98,7 +98,7 @@ before falling back to `object`.
 
 **b) Package tier fit** — boards per app: 5 on the 10-app package, 20 on Growth
 (25-app). Cannot be raised. Public apps, password protection and (upcoming) viewer
-read-only access are Growth-only. Enterprise with 50+ seats must buy Growth
+read-only access are Growth-only. Enterprise (the default assumption) with 50+ seats must buy Growth
 anyway. If the design needs >5 boards or external access, flag the Growth
 requirement now, not at publish time.
 

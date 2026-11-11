@@ -59,6 +59,27 @@ Walk in order, first yes wins. This ladder applies the ranking above.
 
 Code vs HTTP for monday's own API: always Code. It needs no token. HTTP would need a Credentials-app token and supports GET/POST/PUT only (B).
 
+## Step 1b - Code intake: ask before writing any Code
+
+Before writing a single line, confirm these with whoever is asking for the Code block. This is a gate, not a formality - most "quick Code" requests turn out to need less than people assume.
+
+| # | Question | Why it matters |
+|---|---|---|
+| 1 | What native blocks were tried first, and why did they fall short? | Confirms you are actually at rank 3 of the Design stance table, not skipping ranks 1-2. |
+| 2 | What exact input(s) does the code need, and from which earlier block/field? | Drives the auto-generated input name (`<field label>_<step number>`, falls back to `input_1` for non-Latin labels - B, ledger #23) and whether the 30-input cap is enough (A). |
+| 3 | What exact output(s) does downstream need, named and typed (string/number/boolean/array)? | Declared outputs must match returned dict keys exactly; 30-output cap applies (A). |
+| 4 | Does the code call monday's own API, or anything outside monday? | Egress is monday API plus the monday MCP server only (A) - anything else is impossible, not just hard. |
+| 5 | Does the code need any secret, key or credential? | No secrets storage in Code (A). Must come in as an input from a Credentials-aware block, never hardcoded. |
+| 6 | Does the code need to remember anything between runs? | No state between runs (A). Every execution starts fresh. |
+| 7 | How many items/rows will this realistically process, and could that exceed 512 KB of output or 300 s? | Real platform caps (A); keep outputs small (IDs/pointers, not payloads) regardless. |
+| 8 | Who owns this once built - a named person, not "the team"? | Design stance rule 5: build under a named service/admin account, record it in the handover doc. |
+| 9 | What happens if this Code block is disabled, or its upstream data changes shape? | Design stance rule 3 (try/except, never raise) and rule 7 (state plainly what breaks on deactivation). |
+| 10 | Is there a native-block combination that is just slower to build but survives handover better? | Ranks 1-2 in the Design stance table beat Code even when Code is faster to write today. |
+| 11 | Is the whole thing within the line budget in the Design stance table above (rule 4)? | That figure is Basti's own maintainability guideline, not a platform limit - the editor's real cap is 20,000 lines (B, uploaded Code Block guide). Past the guideline, it is not "unavoidable Code," it is multiple jobs that should be multiple blocks. |
+| 12 | Has this exact payload been captured from a real run, not assumed from memory? | Step 4 build-sequence rule 1: capture ONE real payload before writing against it. |
+
+Answering these first turns "just write me some Code" into a scoped, handover-safe block - or reveals it should not be Code at all.
+
 ## Step 2 - What each advanced block really does
 
 ### Webhook trigger "When a webhook is received" (22970502)
@@ -73,9 +94,9 @@ Code vs HTTP for monday's own API: always Code. It needs no token. HTTP would ne
 
 ### Code block (23557427)
 - Python 3.11, top-level statements, `input["name"]`, ends with top-level `return {...}` dict (A, source: your code is grafted into a function body, so `return` works). `print()` is allowed. Declared outputs must match returned keys, names must be valid identifiers, types string/number/boolean/array.
-- Preinstalled: pandas, numpy, matplotlib, pillow, requests, httpx, openpyxl and other Excel readers (A, sandbox README). No pip install possible (egress blocked).
+- Preinstalled: pandas, numpy, matplotlib, pillow, requests, httpx, openpyxl and other Excel readers, psutil, ipython (A, sandbox README; psutil/ipython B, uploaded Code Block guide, not independently tested). No pip install possible (egress blocked).
 - Network: default-deny. Only api.monday.com and mcp.monday.com (path /mcp) (A, code-execution invariants). Auth is injected outside the sandbox as a bearer token for the run's account and user, narrowed to the caller's scopes, valid about 6 min (A). You never handle a key. Which user the writes are attributed to is still unconfirmed.
-- Limits (A, source): timeout 300 s, code max 1 MB, output max 512 KB. The block is NOT retried on failure, because code may have written data (A). Execution is rate limited per account; a 429 shows as "Code block rate limited" (A), the numeric limit is in a config not readable here.
+- Limits (A, source): timeout 300 s, code max 1 MB, output max 512 KB. Up to 30 bound inputs and 30 declared outputs per block; code length capped at 20,000 lines in the editor, lines beyond that are clamped and not saved (B, uploaded Code Block guide, authorship/date not independently confirmed - ledger #23). The block is NOT retried on failure, because code may have written data (A). Execution is rate limited per account; a 429 shows as "Code block rate limited" (A), the numeric limit is in a config not readable here. No secrets storage - credentials cannot be hardcoded, bring them in as an input from a Credentials-aware block (B, same guide). No state between runs - every execution starts fresh (B, same guide).
 - Run history shows config and trigger item, Output tab can be empty on failures (D). Add your own error fields.
 - Incident Oct 13-14: outputs over about 4 KB were cut off in transit, producing "Code block must return an object". Owner team reported fix on Oct 14 (B). Real cap is 512 KB (A); a clear error "output exceeds maximum size" appears above it. Still prefer returning IDs and pointers, not payloads (design rule).
 - Known open bugs (D, two independent reports): Code output bound to Change column value / Update item saves as null and fails validation with MISSING_REQUIRED_INPUT. Safe pattern: do the write inside Code via the API, or route through a native text/number step only after validating.
@@ -87,14 +108,19 @@ Code vs HTTP for monday's own API: always Code. It needs no token. HTTP would ne
 - Errors: 4xx/config errors stop the run; 5xx/timeouts retry (severity 2000) (B). Run history shows full input and output (B).
 - Counts against the target's limits. Calls to api.monday.com count toward the account API quota (B).
 - Open: who can read the token or see it in run history. Do not promise secrecy (C).
+- Domain allowlisting via config exists for this block; as of 17 Aug it was rolling out to the monday account only, not confirmed generally available to client accounts (C, unverified - re-check before promising to a client, ledger C066).
 
 ### Run any MCP action (22629575) and app-specific MCP blocks
 - Core block reaches arbitrary MCP servers; app-specific variants exist for monday, GitHub, Slack, Google Drive, HubSpot, QuickBooks, Confluence, Canva, Dropbox (A, ids in matrix). OAuth-protected apps supported (B, Sep release).
 - Prefer the app-specific block when it exists.
+- The app-specific "Run any monday action" block (126424196) is fully released: no separate auth beyond the owner's own credentials, available on AI-enabled accounts only (B).
 
 ### Loops, manual/run-once, conditions
 - Loop over item/subitem/user collections exists (B). No loop inside a loop (D).
+- The Loop block itself has no iteration cap; an earlier "Max 500" loop-limit UI text was misleading and has been removed - the 500-item cap applies to "Get all..." blocks (e.g. Get all items), not the Loop (B, corrects earlier draft - ledger C062).
 - Manual trigger and run-once (test now, and by chat/MCP) exist (B). Run-once on a live workflow can write real data. Test on a test board.
+- "Run step" tests a single step with real data without running or publishing the whole workflow - still a real run against live data, same caution as Run-once (B).
+- Subitem-level trigger/wait parity: a subitem-update-created trigger, and wait-until column/status/update at subitem level, are now in Workflow Builder; matching classic-Automation support is still pending (B).
 - Conditions: Smart condition (AI), If text matches (multi-branch), Categorize with AI (one label from your list, step fails if none fits) (B).
 
 ## Step 3 - Design rules for production
@@ -112,7 +138,7 @@ Code vs HTTP for monday's own API: always Code. It needs no token. HTTP would ne
 
 1. Capture ONE real payload from the sender. Never map from memory.
 2. Create the shell and trigger via MCP (`create_workflow`, `invoke_workflow_expert`). The expert tool cannot set the Code editor (requires-schema-override, A).
-3. User pastes Code as a FULL file, declares inputs/outputs in UI, saves. Check the generated input names (`code_output_<field>`).
+3. User pastes Code as a FULL file, declares inputs/outputs in UI, saves. Inputs bound from an earlier block auto-name as `<source field label>_<step number>` (e.g. a "Board ID" field from step 1 -> `board_id_1`); if the source label has no Latin/English characters the name falls back to a generic `input_1`, `input_2`... (B, uploaded Code Block guide, authorship/date not independently confirmed - ledger #23). Rename to something readable if you prefer; corrects the earlier `code_output_<field>` guess.
 4. Test Code in the editor with the captured payload plus negative cases. The editor Run hits live data.
 5. Add conditions and notify blocks only after Code outputs are saved.
 6. `validate_workflow`, then explicit approval before `publish_workflow`. Omitting `workflowDraftId` addresses the LIVE version.

@@ -7,7 +7,7 @@ Grades: A tested in real account by Basti (from his build, 2026-10); B owner-sta
 # Inputs: input["name"]. Return a dict whose keys equal the declared outputs.
 return {"example_output": input["example_input"]}
 ```
-- Top-level code, no `def main`. Mapped inputs get auto names `code_output_<field>`, `_2`, `_3`. Use the exact generated name.
+- Top-level code, no `def main`. Mapped inputs auto-name as `<source field label>_<step number>` (e.g. `board_id_1`); a source label with no Latin characters falls back to `input_1`, `input_2`... (B, uploaded Code Block guide - ledger #23, corrects the earlier `code_output_<field>` guess). Use the exact generated name, or rename it.
 - Return strings for everything. Always try/except and return `ok`/`error`.
 - Give the user the FULL file, never a patch (indentation broke twice, A).
 - Expert tool cannot set the Code editor (A). User pastes code and declares inputs/outputs, then saves, before downstream blocks can bind.
@@ -46,6 +46,35 @@ query($u:[ID!]){ users(ids:$u){ id name } }
 # notification opening the update - B (delivery not observed)
 mutation($u:ID!,$t:ID!,$txt:String!){ create_notification(user_id:$u, target_id:$t, text:$txt, target_type:Post){ text } }
 ```
+
+## Known-working example: create an item (B, not run by Basti)
+From a gist (Daniel Abergel, 2026-08-16) - not independently tested here, grade B not A. Note it skips this cookbook's own try/except discipline above; add it before using.
+```python
+import requests
+
+def create_item(board_id, item_name, column_values=None):
+    query = """
+    mutation ($board_id: ID!, $item_name: String!, $column_values: JSON) {
+      create_item(board_id: $board_id, item_name: $item_name, column_values: $column_values) {
+        id
+      }
+    }
+    """
+    variables = {
+        "board_id": board_id,
+        "item_name": item_name,
+        "column_values": column_values or "{}",
+    }
+    resp = requests.post(
+        "https://api.monday.com/v2",
+        json={"query": query, "variables": variables},
+        headers={"Content-Type": "application/json", "API-Version": "2024-10"},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()
+```
+The `API-Version` header is the one thing this example adds over the "API helper" pattern above - worth including on mutations where you need a pinned schema version.
 
 ## Use-case catalogue (what else the Code block unlocks)
 | # | Use case | Evidence | Native alternative |

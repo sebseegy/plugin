@@ -26,6 +26,17 @@ Snapshot 2026-10-23. Primary sources: DaPulse source read-only via your gh login
 | 20 | Webhook: public POST, no auth/HMAC/rate limit, 200 ack via queue, empty body "{}", pending URL TTL 12 h, no custom response | A | openspec spec + commits #1690, #1848, #1850 | New |
 | 21 | Block kinds in source: HTTP block URL validation can exclude internal domains (Aug 13) | A | commit #1729 | Config on monday side |
 | 17 | No public support article for Code block as of 23 Oct (knowledge search) | D | get_monday_knowledge | Docs: monday.monday doc 18429902902, release board cards 12464666328 (webhook, doc 18425024829), 12464744837 (code, doc 18425024842) not read |
+| 22 | 30 bound inputs and 30 declared outputs per Code block; editor caps code at 20,000 lines, clamped beyond that | B | uploaded Code Block guide | New, not in the 23 Oct source read |
+| 23 | Input auto-naming: `<source field label>_<step number>`, non-Latin label falls back to `input_1`, `input_2`... | B | uploaded Code Block guide, authorship/date not independently confirmed | CORRECTS earlier `code_output_<field>` guess in SKILL.md Step 4 and cookbook |
+| 24 | No secrets storage (credentials cannot be hardcoded, must enter as an input from a Credentials-aware block); no state between runs | B | uploaded Code Block guide | New, consistent with HTTP Credentials-app pattern (#5) |
+| 25 | psutil and ipython also preinstalled, alongside pandas/numpy/matplotlib/pillow/requests/httpx/openpyxl | B | uploaded Code Block guide | Extends #3 |
+| 26 | Egress allowlist re-confirmed as api.monday.com + mcp.monday.com/mcp | B | uploaded Code Block guide | Consistent with A-graded #2/#18, no change |
+| 27 | Known-working `create_item` mutation pattern (API-Version header) | B | gist, Daniel Abergel 2026-08-16, not run by Basti | New example, see code-block-cookbook.md |
+| 28 | Loop block has no iteration cap; earlier "Max 500" loop-limit UI text was misleading and removed - 500 caps "Get all..." blocks only | B | #ai-workflows-product-updates 3 Nov (Lior Lapid) | Corrects implied loop cap |
+| 29 | "Run any monday action" MCP block (126424196) fully released: no separate auth, AI-enabled-accounts-only | B | #ai-workflows-product-updates 18 Oct (Shir Aharonee) | New, distinct from generic Run any MCP action core block |
+| 30 | "Run step" tests a single step with real data without running/publishing the whole workflow | B | #ai-workflows-product-updates 25 Oct (Shiraz Behar) | New |
+| 31 | Subitem-level trigger/wait parity (subitem update created; wait until column/status/update) | B | #ai-workflows-product-updates 3 Nov (Ziv Pitshon) | New; classic-Automation support still pending |
+| 32 | HTTP domain allowlisting via config; rolling out to the monday account only as of 17 Aug | C, unverified | #ai-workflows-product-updates 17 Aug (Daniel Abergel) | Not confirmed generally available to client accounts |
 
 ## Open questions (owner queue)
 1. Admin control to disable the Code block per user/group? (JP Morgan question, 2 Sep, unanswered) - Ziv Pitshon / Daniel Abergel.
@@ -39,6 +50,7 @@ Snapshot 2026-10-23. Primary sources: DaPulse source read-only via your gh login
 9. Code array output -> Loop input binding (declaration supported, A; binding untested).
 10. Which user are Code-block API writes and notifications attributed to (workflow creator vs triggering user)? Source passes accountId/userId from auth context; read getAuthContext in core-blocks.
 11. Numeric rate limit for code execution (Ignite config `code-execution-rate-limits`, not readable).
+12. Confirm authorship/date of the uploaded Code Block guide and the create_item gist (rows 22-27, 30-31 above) - currently graded B on content consistency with other B/A sources, not independently sourced.
 
 ## Not verified by me
 No live workflow was created, run or published. Source was read through gh (read-only); no repo was cloned or changed. Docs behind the release-board cards and the Code block monday.monday doc were not read (read_docs ids argument broken on this MCP).

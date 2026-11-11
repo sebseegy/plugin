@@ -5,6 +5,11 @@ first, fed automatically by `weekly-pulse` each time it runs. Covers new
 workflow blocks (condition, action, AI, delay, HTTP/MCP), changes to trigger
 types, new automation recipes, changes to automation limits or caps, and
 confirmed bugs or regressions in workflow execution.
+For deep implementation detail on the advanced blocks themselves (webhook,
+Code, HTTP, MCP, JSON, loops) - evidence grades, cookbook patterns, failure
+triage - see `monday-workflow-specialist/references/changelog.md` and its
+`evidence-ledger.md`. Both changelogs are fed by the same weekly-pulse run and
+share one claims ledger (`weekly-pulse/references/audit/claims.csv`).
 
 ## 2026-10-19 to 2026-10-26
 

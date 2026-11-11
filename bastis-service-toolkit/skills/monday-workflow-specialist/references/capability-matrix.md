@@ -59,7 +59,7 @@ Categorize with AI 124966296; Text summarizer 11105348; Text translator 11081174
 |---|---|---|
 | HTTP request and API call | 15947681 | GET/POST/PUT; Credentials-app token via `{{token}}`; public URLs only (B). |
 | Run any MCP action (core) | 22629575 | |
-| Run any monday action (MCP) | 126424196 | |
+| Run any monday action (MCP) | 126424196 | Fully released: no separate auth beyond the owner's own credentials, AI-enabled-accounts-only (B, ledger #29). Distinct from the generic Run any MCP action core block above. |
 | Run any GitHub / Slack / Google Drive / HubSpot / QuickBooks / Confluence / Canva / Dropbox action (MCP) | 121687315 / 121623798 / 126314877 / 122038413 / 122175285 / 121886346 / 122898916 / 121873659 | |
 
 ## Write / create
@@ -67,7 +67,7 @@ Create board 10528550; Duplicate board 10528536; Create from template 11614493; 
 Do not exist (A): create workspace, create/move board folder, move board, duplicate/move doc, DocuSign, Set variable. For these, use Code (monday API) - see cookbook - and check the schema first.
 
 ## Human in the loop and waits
-Wait until button clicked 10512879; Wait until status changes 10512352; Wait until column changes 10512205; Wait until update created 10869390; Wait for duration 10380177; Send email and wait for response Gmail 123941304 / Outlook 124356611 (recipient need not have a monday account; timeout path, B); Teams notify with button 15988054 (companion wait 15988055 is root-trigger only, A).
+Wait until button clicked 10512879; Wait until status changes 10512352; Wait until column changes 10512205; Wait until update created 10869390; Wait for duration 10380177; Send email and wait for response Gmail 123941304 / Outlook 124356611 (recipient need not have a monday account; timeout path, B); Teams notify with button 15988054 (companion wait 15988055 is root-trigger only, A). Subitem-level parity: subitem-update-created trigger and wait-until column/status/update at subitem level are now supported in Workflow Builder; matching classic-Automation support is still pending (B, ledger #31).
 
 ## Gaps that push you to Code or HTTP
 1. Create/move workspaces and folders.
